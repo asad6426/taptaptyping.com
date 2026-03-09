@@ -10,3 +10,4 @@ virtual/
 *.log
 media/
 staticfiles/
+*.zip
