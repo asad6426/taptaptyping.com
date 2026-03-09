@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Authentication System{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="welcome-section fade-in">
+        <div class="welcome-card">
+            <div class="welcome-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h1>Welcome, {{ user.username }}!</h1>
+            <p class="user-email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+            <p class="welcome-text">You have successfully logged in to your account.</p>
+            
+            <div class="user-stats">
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Member Since</h3>
+                    <p>{{ user.date_joined|date:"M d, Y" }}</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Last Login</h3>
+                    <p>{{ user.last_login|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2><i class="fas fa-th-large"></i> Dashboard</h2>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-icon">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h3>Profile Settings</h3>
+                <p>Update your profile information and preferences</p>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-cog"></i> Manage Profile
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Security</h3>
+                <p>Change password and manage security settings</p>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-shield-alt"></i> Security Settings
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>Notifications</h3>
+                <p>Manage your notification preferences</p>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-bell"></i> Notifications
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Activity</h3>
+                <p>View your account activity and history</p>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-history"></i> View Activity
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <h2><i class="fas fa-star"></i> Features</h2>
+        
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>Responsive Design</h4>
+                <p>Works seamlessly on all devices</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <h4>Secure Authentication</h4>
+                <p>Your data is protected</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-bolt"></i>
+                <h4>Fast & Efficient</h4>
+                <p>Lightning fast performance</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-palette"></i>
+                <h4>Modern UI</h4>
+                <p>Beautiful and intuitive interface</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h2><i class="fas fa-fire"></i> Quick Actions</h2>
+        <div class="action-buttons">
+            <button class="btn btn-action">
+                <i class="fas fa-file-alt"></i> Create Document
+            </button>
+            <button class="btn btn-action">
+                <i class="fas fa-upload"></i> Upload File
+            </button>
+            <button class="btn btn-action">
+                <i class="fas fa-users"></i> Invite Friends
+            </button>
+            <button class="btn btn-action">
+                <i class="fas fa-comment"></i> Send Message
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add interactivity to dashboard cards
+    document.querySelectorAll('.dashboard-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Feature items animation
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-item').forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'all 0.6s ease';
+        observer.observe(item);
+    });
+</script>
+{% endblock %}

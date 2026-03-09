@@ -1,0 +1,123 @@
+<style>
+    .card-custom {
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border: none;
+        transition: transform 0.3s ease-in-out;
+        background-color: transparent;
+    }
+
+    .btn-custom {
+        background-color:rgb(46, 55, 226);
+        color: white;
+        border-radius: 5px;
+        padding: 10px 20px;
+    }
+
+    .btn-custom:hover {
+        background-color: #1e3799;
+        transform: scale(1.05);
+    }
+
+    #paragraphContainer {
+        background-color: transparent;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #dddddd;
+        margin-bottom: 20px;
+    }
+
+    .word {
+        margin-right: 5px;
+        display: inline;
+    }
+
+    .correct {
+        color: #27ae60;
+    }
+
+    .incorrect {
+        color: #e55039;
+    }
+
+    #timer {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .card-title {
+        color: #333;
+        font-size: 1.5em;
+    }
+    .card-text {
+        color: #333;
+        font-size: 1.2em;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+
+    .card {
+        background-color: transparent;
+    }
+
+    .feature-card {
+        background: linear-gradient(145deg,rgb(27, 216, 137),rgb(105, 173, 236));
+        color: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .feature-card {
+            margin-bottom: 20px;
+        }
+    }
+
+    .setup-options {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+
+
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card text-center">
+                <i class="fas fa-lightbulb feature-icon"></i>
+                <h5 class="card-title" style="color: white;">Typing Tips</h5>
+                <p class="card-text">Discover ways to increase your typing speed with our curated expert tips and
+                    tricks.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card text-center">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h5 class="card-title" style="color: white;">Progress Tracker</h5>
+                <p class="card-text">Monitor your improvement with personalized progress reports and adaptive feedback.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card text-center">
+                <i class="fas fa-users feature-icon"></i>
+                <h5 class="card-title" style="color: white;">Community Challenges</h5>
+                <p class="card-text">Engage in community challenges and compete against typists from around the world.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -1,0 +1,740 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    
+    /* Footer Styles */
+    .modern-footer {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0a1628 0%, #0D6073 50%, #1a2942 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #60D5FF, transparent);
+    }
+
+    /* Animated Background Circles */
+    .footer-bg-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(96, 213, 255, 0.05);
+        animation: float 20s infinite;
+    }
+
+    .footer-bg-circle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: -150px;
+        right: -100px;
+        animation-delay: 0s;
+    }
+
+    .footer-bg-circle:nth-child(2) {
+        width: 200px;
+        height: 200px;
+        bottom: -100px;
+        left: -50px;
+        animation-delay: 7s;
+    }
+
+    .footer-bg-circle:nth-child(3) {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        left: 30%;
+        animation-delay: 14s;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+    }
+
+    /* Social Media Section */
+    .footer-social {
+        background: linear-gradient(135deg, #0D6073 0%, #0a4a5a 100%);
+        padding: 25px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .footer-social .social-text {
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .social-icon:hover {
+        background: #60D5FF;
+        color: #0a1628;
+        transform: translateY(-5px) rotate(360deg);
+        box-shadow: 0 10px 25px rgba(96, 213, 255, 0.4);
+    }
+
+    /* Main Footer Content */
+    .footer-content {
+        padding: 60px 0 40px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .footer-section {
+        margin-bottom: 30px;
+    }
+
+    .footer-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+        color: #60D5FF;
+    }
+
+    .footer-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #60D5FF, transparent);
+        border-radius: 2px;
+    }
+
+    .footer-text {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.8;
+        font-size: 0.95rem;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-links li {
+        margin-bottom: 12px;
+    }
+
+    .footer-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .footer-link::before {
+        content: '→';
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: #60D5FF;
+        transform: translateX(5px);
+    }
+
+    .footer-link:hover::before {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    /* Contact Info */
+    .contact-item {
+        display: flex;
+        align-items: start;
+        gap: 12px;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .contact-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(96, 213, 255, 0.1);
+        color: #60D5FF;
+        flex-shrink: 0;
+    }
+
+    /* Network Banner Section */
+    .network-banner {
+        background: linear-gradient(135deg, rgba(96, 213, 255, 0.1), rgba(59, 130, 246, 0.1));
+        border-top: 2px solid rgba(96, 213, 255, 0.3);
+        border-bottom: 2px solid rgba(96, 213, 255, 0.3);
+        padding: 40px 0;
+        margin: 30px 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .network-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(96, 213, 255, 0.1)"/></svg>');
+        opacity: 0.3;
+        z-index: -1;
+    }
+
+    .network-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .network-main-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #60D5FF, #A8E6FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+    }
+
+    .network-subtitle {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .network-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .network-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 25px;
+        border: 2px solid rgba(96, 213, 255, 0.2);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .network-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(96, 213, 255, 0.1), transparent);
+        transition: all 0.6s ease;
+    }
+
+    .network-card:hover::before {
+        left: 100%;
+    }
+
+    .network-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #60D5FF;
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(96, 213, 255, 0.3);
+    }
+
+    .network-card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #60D5FF, #3B82F6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        box-shadow: 0 8px 20px rgba(96, 213, 255, 0.3);
+    }
+
+    .network-card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+    }
+
+    .network-card-url {
+        font-size: 0.95rem;
+        color: #60D5FF;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .network-card-desc {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .network-visit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #60D5FF, #3B82F6);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .network-visit-btn:hover {
+        background: linear-gradient(135deg, #A8E6FF, #60D5FF);
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(96, 213, 255, 0.4);
+    }
+
+    /* Copyright Section */
+    .footer-copyright {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px 0;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .footer-copyright p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+
+    .footer-copyright a {
+        color: #60D5FF;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .footer-copyright a:hover {
+        color: #A8E6FF;
+        text-decoration: underline;
+    }
+
+    /* Back to Top Button */
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #60D5FF, #3B82F6);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        box-shadow: 0 5px 20px rgba(96, 213, 255, 0.4);
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .back-to-top:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(96, 213, 255, 0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .footer-social {
+            padding: 20px 0;
+        }
+
+        .footer-social .container-fluid > div {
+            flex-direction: column !important;
+            gap: 15px;
+        }
+
+        .footer-social .social-text {
+            font-size: 0.9rem;
+        }
+
+        .social-icons {
+            justify-content: center;
+        }
+
+        .footer-content {
+            padding: 40px 0 30px;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+        }
+
+        .network-banner {
+            padding: 30px 0;
+        }
+
+        .network-main-title {
+            font-size: 1.4rem;
+        }
+
+        .network-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .back-to-top {
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+        }
+    }
+
+    /* Hover Animation for Footer Sections */
+    .footer-section {
+        transition: all 0.3s ease;
+    }
+
+    .footer-section:hover .footer-title {
+        color: #A8E6FF;
+    }
+</style>
+
+<!-- Modern Footer -->
+<footer class="modern-footer">
+    <!-- Animated Background -->
+    <div class="footer-bg-circle"></div>
+    <div class="footer-bg-circle"></div>
+    <div class="footer-bg-circle"></div>
+
+    <!-- Social Media Section -->
+    <section class="footer-social">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center flex-wrap px-4">
+                <div class="social-text">
+                    <span>🌐 Get connected with us on social networks:</span>
+                </div>
+                <div class="social-icons">
+                    <a href="https://web.facebook.com/profile.php?id=61576578628588" class="social-icon" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@rezasarkerreza5151" class="social-icon" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://taptaptyping.com/" class="social-icon" title="Google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="https://taptaptyping.com/" class="social-icon" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://taptaptyping.com/" class="social-icon" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Footer Content -->
+    <section class="footer-content">
+        <div class="container-fluid px-4">
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-title">⌨️ TapTapTyping</h6>
+                    <p class="footer-text">
+                        TapTapTyping — an interactive website that offers engaging lessons, fun games, and real-time feedback to help you type faster and more accurately. Perfect for learners at all levels, especially students and professionals.
+                    </p>
+                </div>
+
+                <!-- Typing Options -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-title">⚡ Typing Options</h6>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="{% url 'taptap' %}" class="footer-link">Typing Speed Test</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'typingLession' %}" class="footer-link">Typing Lesson</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'typingGame' %}" class="footer-link">Typing Games</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'leaderboard' %}" class="footer-link">Leaderboard</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'aboutus' %}" class="footer-link">Community</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'FAQ' %}" class="footer-link">Typing Help</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Useful Links -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-title">🔗 Useful Links</h6>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="{% url 'login' %}" class="footer-link">Your Account</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'dashboard' %}" class="footer-link">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'taptap' %}" class="footer-link">Become a Typist</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'blogs' %}" class="footer-link">Blog</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'jobs' %}" class="footer-link">Jobs</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'policy' %}" class="footer-link">Privacy Policy</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Section - WITH PHONE AND WHATSAPP -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-title">📞 Contact Us</h6>
+                    
+                    <!-- Address -->
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <strong>Address</strong><br>
+                            Bangla Motor, Dhaka, Bangladesh
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <strong>Email</strong><br>
+                            <a href="mailto:reza.taptaptyping@gmail.com" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">
+                                reza.taptaptyping@gmail.com
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone Number -->
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <strong>Phone</strong><br>
+                            <a href="tel:+8801782266076" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">
+                                +880 1782266076
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- WhatsApp Number - THIS IS THE NEW ADDITION -->
+                    <div class="contact-item">
+                        <div class="contact-icon" style="background: linear-gradient(135deg, #25D366, #128C7E);">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <strong>WhatsApp</strong><br>
+                            <a href="https://wa.me/8801782266076" target="_blank" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">
+                                +880 1782266076
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Network Banner Section -->
+    <section class="network-banner">
+        <div class="container-fluid px-4">
+            <div class="network-header">
+                <h3 class="network-main-title">🌟 Part of Our Typing Network</h3>
+                <p class="network-subtitle">TapTapTyping is part of a growing typing education network</p>
+            </div>
+            
+            <div class="network-cards">
+                <!-- Card 1 -->
+                <div class="network-card">
+                    <div class="network-card-icon">📝</div>
+                    <h4 class="network-card-title">Typing Practice Platform</h4>
+                    <a href="https://typingst.com" target="_blank" class="network-card-url">typingst.com</a>
+                    <p class="network-card-desc">
+                        Comprehensive typing practice with structured lessons and exercises for all skill levels.
+                    </p>
+                    <a href="https://typingst.com" target="_blank" class="network-visit-btn">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="network-card">
+                    <div class="network-card-icon">🎯</div>
+                    <h4 class="network-card-title">Online Exam Typing Test</h4>
+                    <a href="https://typingtestai.com" target="_blank" class="network-card-url">typingtestai.com</a>
+                    <p class="network-card-desc">
+                        Professional typing tests designed for job applications, certifications, and assessments.
+                    </p>
+                    <a href="https://typingtestai.com" target="_blank" class="network-visit-btn">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Card 3 - TapTapTyping -->
+                <div class="network-card">
+                    <div class="network-card-icon">⚡</div>
+                    <h4 class="network-card-title">TapTapTyping</h4>
+                    <a href="{% url 'start_test' %}" class="network-card-url">taptaptyping.com</a>
+                    <p class="network-card-desc">
+                        Interactive typing games and speed tests with real-time feedback and leaderboards.
+                    </p>
+                    <a href="{% url 'start_test' %}" class="network-visit-btn">
+                        You're Here! <i class="fas fa-check"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Copyright -->
+    <div class="footer-copyright">
+        <div class="container-fluid">
+            <p>
+                © 2025 Copyright: <a href="{% url 'start_test' %}">TapTapTyping.com</a> | 
+                All Rights Reserved | Made with ❤️ for better typing
+            </p>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<div class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+<script>
+    // Back to Top Button Functionality
+    const backToTopButton = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.add('show');
+        } else {
+            backToTopButton.classList.remove('show');
+        }
+    });
+
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // Network Cards Hover Effect
+    const networkCards = document.querySelectorAll('.network-card');
+    networkCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Social Icons Animation
+    const socialIcons = document.querySelectorAll('.social-icon');
+    socialIcons.forEach((icon, index) => {
+        icon.style.animationDelay = `${index * 0.1}s`;
+    });
+
+    // Add scroll animation to network section
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    networkCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+</script>

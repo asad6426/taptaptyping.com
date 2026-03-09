@@ -1,0 +1,87 @@
+{% extends "base2.html" %}
+{% block title %}Home Page{% endblock %}
+
+
+{% block content %}
+
+<style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .hero {
+            background-color: #0D6073;
+            color: white;
+            padding: 60px 0;
+        }
+        .team-member {
+            margin-bottom: 30px;
+        }
+        .mission{
+            font-size: 18px;
+        }
+        .image {
+  width: 200px;
+  height: 200px;
+  
+}
+    </style>
+    <header class="hero text-center">
+        <div class="container">
+            <h1 class="display-4">About Us</h1>
+            <p class="lead">Welcome to TapTapTyping, your go-to platform for improving typing speed and accuracy!</p>
+        </div>
+    </header>
+
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Our Mission</h2>
+        <p class="text-center mission">At TapTapTyping, we aim to provide a fun and engaging way for users to enhance their typing skills. Whether you're a beginner or an experienced typist, our platform offers a variety of tests and lessons tailored to your needs.</p>
+
+        <h2 class="text-center my-5">Features</h2>
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Typing Tests</h5>
+                        <p class="card-text">Challenge yourself with our diverse typing tests that cater to all skill levels.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Typing Lessons</h5>
+                        <p class="card-text">Learn the fundamentals of typing with our structured lessons and exercises.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Typing Games</h5>
+                        <p class="card-text">Make learning fun with our interactive typing games designed to improve speed and accuracy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-center my-5">Meet Our Team</h2>
+        <div class="row">
+            <div class="col-md-6 team-member text-center">
+                <img src="/static/reza.jpg" alt="Team Member" class="rounded-circle mb-3 image">
+                <h5>Mohammed Reza</h5>
+                <p>Founder & CEO</p>
+            </div>
+            <div class="col-md-6 team-member text-center">
+                <img src="/static/asad.jpg" alt="Team Member" class="rounded-circle mb-3 image">
+                <h5>Md. Asaduzzaman</h5>
+                <p>Lead Developer</p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

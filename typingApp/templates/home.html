@@ -1,0 +1,116 @@
+{% extends "base2.html" %}
+{% block title %}Home Page{% endblock %}
+
+
+{% block content %}
+<style>
+        body {
+            background-color: #ECF7F9; /* Light background */
+            color: #1a202c; /* Dark text */
+        }
+        .main-content {
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: #ffffff; /* White background for main content */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .header-title {
+            color: #0D6073; /* Title color */
+            font-weight: bold;
+        }
+        .header-subtitle {
+            color: #1f8ea6; /* Subtitle color */
+            font-weight: 600;
+            
+        }
+        .form-control {
+            border-radius: 1.5rem; /* Rounded corners for inputs */
+        }
+        .testTimeTitle{
+            color:rgb(5, 90, 109); /* Title color */
+            font-weight: 500;
+            
+        }
+        .testDuration{
+            border: 2px solid #0D6073;
+
+        }
+        .btn-custom {
+            background-color: #0D6073; /* Button color */
+            color: white; /* Button text color */
+            border-radius: 1.5rem; /* Rounded corners for button */
+        }
+        .btn-custom:hover {
+            background-color: #1f8ea6; /* Button hover color */
+        }
+        .toggle-switch {
+            width: 50px;
+            height: 25px;
+            background-color: #ccc;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .toggle-switch-inner {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2.5px;
+            left: 2.5px;
+            transition: transform 0.3s;
+        }
+        .toggle-switch.active {
+            background-color: #0D6073;
+        }
+        .toggle-switch.active .toggle-switch-inner {
+            transform: translateX(25px);
+        }
+       
+        
+</style>
+
+   
+        <!-- Main Content -->
+<main class="main-content">
+            <h2 class="mt-6 mb-2 text-center display-4 font-weight-bold header-title">Check your typing skills in a minute</h2>
+            <p class="mb-2 text-lg text-center display-6 header-subtitle">Type away to join 150+ million test takers!</p>
+
+            <!-- Test Selection -->
+            <form id="testForm" action="{% url 'taptap' %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <div class="form-group text-center">
+                        <label for="test-duration" class="mb-1 fs-3 testTimeTitle text-info">Select Your Test</label>
+                        <select id="test-duration" name="test_duration" class="form-control testDuration w-50 mx-auto">
+                            <option class="text-center" value="30">30 second Test</option>
+                            <option class="text-center" value="60">1 Minute Test</option>
+                            <option class="text-center" value="120">2 Minute Test</option>
+                            <option class="text-center" value="180">3 Minute Test</option>
+                            <option class="text-center" value="300">5 Minute Test</option>
+                            <option class="text-center" value="600">10 Minute Test</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="text-type" class="mb-1 fs-3 testTimeTitle text-info">Select Text Type</label>
+                        <select id="text-type" name="text_type" class="form-control testDuration w-50 mx-auto">
+                            <option class="text-center" value="Easy">Easy Text</option>
+                            <option class="text-center" value="Medium">Medium Text</option>
+                            <option class="text-center" value="Hard">Hard Text</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex flex-column align-items-center">
+                        <button type="submit" id="startTest" class="btn mt-4 btn-custom shadow">Start Test</button>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    
+   
+{% endblock %}

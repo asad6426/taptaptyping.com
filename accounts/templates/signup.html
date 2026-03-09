@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Authentication System{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card slide-in">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1>Create Account</h1>
+            <p>Sign up to get started</p>
+        </div>
+
+        <form method="post" class="auth-form" id="signupForm" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error-message">
+                        {% for error in form.username.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email Address
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error-message">
+                        {% for error in form.email.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <div class="password-wrapper">
+                    {{ form.password }}
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                        <i class="fas fa-eye" id="password-icon"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <div class="error-message">
+                        {% for error in form.password.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">
+                    <i class="fas fa-lock"></i> Confirm Password
+                </label>
+                <div class="password-wrapper">
+                    {{ form.confirm_password }}
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
+                        <i class="fas fa-eye" id="confirm_password-icon"></i>
+                    </button>
+                </div>
+                {% if form.confirm_password.errors %}
+                    <div class="error-message">
+                        {% for error in form.confirm_password.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in form.non_field_errors %}
+                        <small>{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
+
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <div class="social-login">
+            <button class="btn btn-social btn-google">
+                <i class="fab fa-google"></i> Sign up with Google
+            </button>
+            <button class="btn btn-social btn-facebook">
+                <i class="fab fa-facebook-f"></i> Sign up with Facebook
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Very simple form validation - just check if fields are filled
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (!username || !email || !password || !confirmPassword) {
+            e.preventDefault();
+            showNotification('সব field পূরণ করুন / Please fill all fields', 'error');
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            showNotification('Password মিলছে না / Passwords do not match', 'error');
+            return false;
+        }
+        
+        // Password can be anything - no strength check!
+        // এখানে কোনো password strength check নেই - যেকোনো password দিতে পারবেন!
+    });
+</script>
+{% endblock %}

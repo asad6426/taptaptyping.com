@@ -1,0 +1,131 @@
+{% extends "base2.html" %}
+{% block title %}job_details Posts{% endblock %}
+
+
+{% block content %}
+ <style>
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+      
+        .job_details-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .job_details-post {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .job_details-post:hover {
+            transform: scale(1.02);
+        }
+        .job_details-post img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .job_details-post h2 {
+            font-size: 1.5em;
+            margin: 0 0 10px;
+        }
+        .job_details-post p {
+            margin: 5px 0;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            text-decoration: none;
+            color: #007BFF;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    
+    .post-card {
+        background-color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .post-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .post-image {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .post-title {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .post-snippet {
+        font-size: 1em;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .post-actions {
+        font-size: 0.9em;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .post-actions i {
+        margin-right: 5px;
+    }
+
+    .btn-link {
+        color: #4a69bd;
+        text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+   
+</style>
+
+<div class="container my-4">
+    <h1 class="text-center mb-4">Latest Blog Details</h1>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0">
+                {% if blog_details.image %}
+                <a href="{{ blog_details.image.url }}"><img src="{{ blog_details.image.url }}" class="card-img-top" alt="{{ job_details.title }}" height="300", width="300"> </a>                {% else %}
+                <img src="https://via.placeholder.com/400x250?text=No+Image" class="card-img-top" alt="No Image">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ blog_details.title }}</h5>                    
+                    <p class="card-text text-muted small">{{ blog_details.posted_date|date:"M d, Y" }}</p>
+                    <p class="card-text">{{ blog_details.description|safe }}</p>
+                    
+                </div>
+            </div>
+
+    </div>
+</div>
+    
+
+
+{% endblock content %}

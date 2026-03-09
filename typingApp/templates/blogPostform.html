@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Blog Post Creator - Rank Math Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .editor-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #f44336;
+            margin-left: 3px;
+        }
+
+        .char-count {
+            float: right;
+            font-size: 12px;
+            font-weight: normal;
+            color: #666;
+        }
+
+        .char-count.warning {
+            color: #ff9800;
+        }
+
+        .char-count.error {
+            color: #f44336;
+        }
+
+        .char-count.success {
+            color: #4caf50;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .seo-score {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .seo-score h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        .score-circle.poor {
+            background: #f44336;
+        }
+
+        .score-circle.fair {
+            background: #ff9800;
+        }
+
+        .score-circle.good {
+            background: #4caf50;
+        }
+
+        .score-label {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .seo-checks {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .seo-checks h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #f5f5f5;
+        }
+
+        .check-item .icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+
+        .check-item.pass {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .check-item.pass .icon {
+            background: #4caf50;
+            color: white;
+        }
+
+        .check-item.fail {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .check-item.fail .icon {
+            background: #f44336;
+            color: white;
+        }
+
+        .check-item.warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .check-item.warning .icon {
+            background: #ff9800;
+            color: white;
+        }
+
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .preview-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .google-preview {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+
+        .preview-url {
+            font-size: 12px;
+            color: #5f6368;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .preview-title {
+            font-size: 18px;
+            color: #1a0dab;
+            margin-bottom: 5px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .preview-title:hover {
+            text-decoration: underline;
+        }
+
+        .preview-description {
+            font-size: 13px;
+            color: #545454;
+            line-height: 1.5;
+        }
+
+        .social-preview {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .social-preview-image {
+            width: 100%;
+            height: 180px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .social-preview-content {
+            padding: 15px;
+        }
+
+        .social-preview-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .social-preview-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .social-preview-url {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .btn-primary.loading .loader {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .export-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .export-option:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+
+        .export-option h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .export-option p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .alert-error {
+            background: #f44336;
+            color: white;
+        }
+
+        .alert-info {
+            background: #2196f3;
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Message Container -->
+    <div class="message-container" id="messageContainer"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 SEO Blog Post Creator</h1>
+            <p>Create SEO-optimized blog posts with real-time analysis - Rank Math Style</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Editor Section -->
+            <div class="editor-section">
+                <!-- Basic Information -->
+                <div class="preview-section">
+                    <h3>📝 Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label>
+                            Blog Title <span class="required">*</span>
+                            <span class="char-count" id="titleCount">0 / 60</span>
+                        </label>
+                        <input type="text" id="title" placeholder="Enter your blog post title..." maxlength="100">
+                        <div class="help-text">Recommended: 50-60 characters for optimal SEO</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Blog Content <span class="required">*</span>
+                            <span class="char-count" id="contentCount">0 words</span>
+                        </label>
+                        <textarea id="content" placeholder="Write your amazing content here..."></textarea>
+                        <div class="help-text">Recommended: Minimum 800-1000 words for better ranking</div>
+                    </div>
+                </div>
+
+                <!-- SEO Settings -->
+                <div class="preview-section">
+                    <h3>🎯 SEO Settings</h3>
+                    
+                    <div class="form-group">
+                        <label>
+                            SEO Title (Meta Title)
+                            <span class="char-count" id="metaTitleCount">0 / 60</span>
+                        </label>
+                        <input type="text" id="metaTitle" placeholder="Custom SEO title..." maxlength="70">
+                        <div class="help-text">Leave blank to use blog title. Optimal: 50-60 characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Meta Description
+                            <span class="char-count" id="metaDescCount">0 / 160</span>
+                        </label>
+                        <textarea id="metaDesc" placeholder="Write a compelling meta description..." maxlength="180" style="min-height: 80px;"></textarea>
+                        <div class="help-text">Optimal: 150-160 characters. This appears in search results</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Focus Keyword</label>
+                        <input type="text" id="focusKeyword" placeholder="e.g., django blog tutorial">
+                        <div class="help-text">The main keyword you want to rank for</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL Slug</label>
+                        <input type="text" id="slug" placeholder="auto-generated-from-title">
+                        <div class="help-text">Leave blank for auto-generation. Use hyphens, lowercase only</div>
+                    </div>
+                </div>
+
+                <!-- Preview Tabs -->
+                <div class="preview-section">
+                    <div class="tabs">
+                        <button class="tab active" data-tab="google">Google Preview</button>
+                        <button class="tab" data-tab="facebook">Facebook Preview</button>
+                        <button class="tab" data-tab="twitter">Twitter Preview</button>
+                    </div>
+
+                    <!-- Google Preview -->
+                    <div class="tab-content active" id="google-preview">
+                        <div class="google-preview">
+                            <div class="preview-url" id="googleUrl">
+                                <span>🌐</span>
+                                <span>https://yourwebsite.com/blog/your-post-slug</span>
+                            </div>
+                            <div class="preview-title" id="googleTitle">
+                                Your SEO Title Appears Here
+                            </div>
+                            <div class="preview-description" id="googleDesc">
+                                Your meta description appears here. Make it compelling to increase click-through rate!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facebook Preview -->
+                    <div class="tab-content" id="facebook-preview">
+                        <div class="social-preview">
+                            <div class="social-preview-image">
+                                📷 Featured Image (1200x630px)
+                            </div>
+                            <div class="social-preview-content">
+                                <div class="social-preview-title" id="fbTitle">
+                                    Your Post Title
+                                </div>
+                                <div class="social-preview-description" id="fbDesc">
+                                    Your meta description will appear here when shared on Facebook
+                                </div>
+                                <div class="social-preview-url">yourwebsite.com</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Twitter Preview -->
+                    <div class="tab-content" id="twitter-preview">
+                        <div class="social-preview">
+                            <div class="social-preview-image">
+                                📷 Featured Image (1200x630px)
+                            </div>
+                            <div class="social-preview-content">
+                                <div class="social-preview-title" id="twitterTitle">
+                                    Your Post Title
+                                </div>
+                                <div class="social-preview-description" id="twitterDesc">
+                                    Your meta description for Twitter
+                                </div>
+                                <div class="social-preview-url">yourwebsite.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="submitBtn">
+                        <span class="btn-text">💾 Save to Database</span>
+                        <div class="loader"></div>
+                    </button>
+                    <button class="btn btn-secondary" id="exportBtn">
+                        📥 Export Files
+                    </button>
+                    <button class="btn btn-secondary" id="clearBtn">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- SEO Score -->
+                <div class="seo-score">
+                    <h3>📊 SEO Score</h3>
+                    <div class="score-circle good" id="scoreCircle">
+                        <span id="scoreValue">0</span>
+                    </div>
+                    <div class="score-label" id="scoreLabel">Not Started</div>
+                </div>
+
+                <!-- SEO Checks -->
+                <div class="seo-checks">
+                    <h3>✅ SEO Analysis</h3>
+                    <div id="seoChecksList">
+                        <div class="check-item warning">
+                            <div class="icon">!</div>
+                            <div>Start writing to see SEO analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="seo-checks">
+                    <h3>📈 Content Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Word Count</div>
+                            <div class="stat-value" id="wordCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Reading Time</div>
+                            <div class="stat-value" id="readingTime">0m</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Keyword Density</div>
+                            <div class="stat-value" id="keywordDensity">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Keyword Count</div>
+                            <div class="stat-value" id="keywordCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📥 Export Your Post</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="export-options">
+                <div class="export-option" id="exportJSON">
+                    <h4>📄 Export as JSON</h4>
+                    <p>Download post data in JSON format for easy import</p>
+                </div>
+                <div class="export-option" id="exportHTML">
+                    <h4>🌐 Export as HTML</h4>
+                    <p>Get complete HTML with meta tags ready to paste</p>
+                </div>
+                <div class="export-option" id="copyMeta">
+                    <h4>🏷️ Copy Meta Tags</h4>
+                    <p>Copy SEO meta tags to clipboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const CONFIG = {
+            DJANGO_SUBMIT_URL: '/blog/submit-ajax/',
+            USE_DJANGO: true,  // Set to true when Django is ready
+        };
+
+        // ========================================
+        // UTILITY FUNCTIONS
+        // ========================================
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function generateSlug(text) {
+            return text
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+        }
+
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `<span>${message}</span>`;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // ========================================
+        // CHARACTER COUNTERS
+        // ========================================
+
+        function updateCharCount(inputId, countId, optimal, max) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(countId);
+            
+            if (!input || !counter) return;
+            
+            const length = input.value.length;
+            
+            if (inputId === 'content') {
+                const words = input.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+                counter.textContent = `${words} words`;
+                return;
+            }
+            
+            counter.textContent = `${length} / ${optimal}`;
+            
+            if (length === 0) {
+                counter.className = 'char-count';
+            } else if (length < optimal - 10) {
+                counter.className = 'char-count warning';
+            } else if (length >= optimal && length <= max) {
+                counter.className = 'char-count success';
+            } else {
+                counter.className = 'char-count error';
+            }
+        }
+
+        // ========================================
+        // PREVIEW UPDATES
+        // ========================================
+
+        function updatePreviews() {
+            const title = document.getElementById('title').value || 'Your SEO Title Appears Here';
+            const metaTitle = document.getElementById('metaTitle').value || title;
+            const metaDesc = document.getElementById('metaDesc').value || 'Your meta description appears here. Make it compelling to increase click-through rate!';
+            const slug = document.getElementById('slug').value || generateSlug(title);
+
+            // Google Preview
+            document.getElementById('googleTitle').textContent = metaTitle;
+            document.getElementById('googleDesc').textContent = metaDesc;
+            document.getElementById('googleUrl').innerHTML = `
+                <span>🌐</span>
+                <span>https://yourwebsite.com/blog/${slug || 'your-post-slug'}</span>
+            `;
+
+            // Social Previews
+            document.getElementById('fbTitle').textContent = metaTitle;
+            document.getElementById('fbDesc').textContent = metaDesc;
+            document.getElementById('twitterTitle').textContent = metaTitle;
+            document.getElementById('twitterDesc').textContent = metaDesc;
+        }
+
+        // ========================================
+        // SEO ANALYSIS
+        // ========================================
+
+        function performSEOChecks() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const metaTitle = document.getElementById('metaTitle').value || title;
+            const metaDesc = document.getElementById('metaDesc').value;
+            const focusKeyword = document.getElementById('focusKeyword').value.toLowerCase();
+            const slug = document.getElementById('slug').value || generateSlug(title);
+            
+            const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+            
+            const checks = [
+                {
+                    name: 'Title length optimal',
+                    status: metaTitle.length >= 50 && metaTitle.length <= 60 ? 'pass' : 
+                           metaTitle.length > 0 ? 'warning' : 'fail',
+                    message: metaTitle.length >= 50 && metaTitle.length <= 60 ? 
+                            'Perfect title length!' : 
+                            metaTitle.length > 0 ? 'Title should be 50-60 characters' : 'Add a title'
+                },
+                {
+                    name: 'Meta description optimal',
+                    status: metaDesc.length >= 150 && metaDesc.length <= 160 ? 'pass' : 
+                           metaDesc.length > 0 ? 'warning' : 'fail',
+                    message: metaDesc.length >= 150 && metaDesc.length <= 160 ? 
+                            'Perfect meta description!' : 
+                            metaDesc.length > 0 ? 'Should be 150-160 characters' : 'Add meta description'
+                },
+                {
+                    name: 'Focus keyword set',
+                    status: focusKeyword.length > 0 ? 'pass' : 'fail',
+                    message: focusKeyword.length > 0 ? 'Focus keyword added' : 'Add a focus keyword'
+                },
+                {
+                    name: 'Keyword in title',
+                    status: focusKeyword && title.toLowerCase().includes(focusKeyword) ? 'pass' : 
+                           focusKeyword ? 'fail' : 'warning',
+                    message: focusKeyword && title.toLowerCase().includes(focusKeyword) ? 
+                            'Keyword found in title!' : 
+                            focusKeyword ? 'Add keyword to title' : 'Set focus keyword first'
+                },
+                {
+                    name: 'Keyword in meta description',
+                    status: focusKeyword && metaDesc.toLowerCase().includes(focusKeyword) ? 'pass' : 
+                           focusKeyword ? 'warning' : 'warning',
+                    message: focusKeyword && metaDesc.toLowerCase().includes(focusKeyword) ? 
+                            'Keyword in description!' : 'Add keyword to meta description'
+                },
+                {
+                    name: 'Content length',
+                    status: words >= 800 ? 'pass' : words >= 300 ? 'warning' : 'fail',
+                    message: words >= 800 ? `Great! ${words} words` : 
+                            words >= 300 ? `Add more content (${words} words)` : words > 0 ? 'Need at least 300 words' : 'Start writing content'
+                },
+                {
+                    name: 'Keyword density',
+                    status: (() => {
+                        if (!focusKeyword || words === 0) return 'warning';
+                        const keywordCount = (content.toLowerCase().match(new RegExp(focusKeyword, 'g')) || []).length;
+                        const density = (keywordCount / words) * 100;
+                        return density >= 0.5 && density <= 2.5 ? 'pass' : 
+                               density > 0 ? 'warning' : 'fail';
+                    })(),
+                    message: (() => {
+                        if (!focusKeyword) return 'Set focus keyword first';
+                        if (words === 0) return 'Write some content first';
+                        const keywordCount = (content.toLowerCase().match(new RegExp(focusKeyword, 'g')) || []).length;
+                        const density = (keywordCount / words) * 100;
+                        if (density >= 0.5 && density <= 2.5) return 'Perfect density!';
+                        if (density > 2.5) return 'Too many keywords';
+                        return 'Use keyword more naturally';
+                    })()
+                },
+                {
+                    name: 'URL slug SEO-friendly',
+                    status: slug && slug.length <= 50 && /^[a-z0-9-]+$/.test(slug) ? 'pass' : 'warning',
+                    message: slug && slug.length <= 50 && /^[a-z0-9-]+$/.test(slug) ? 
+                            'Great slug!' : 'Slug should be short and lowercase'
+                }
+            ];
+            
+            return checks;
+        }
+
+        function calculateSEOScore() {
+            const checks = performSEOChecks();
+            const passedChecks = checks.filter(c => c.status === 'pass').length;
+            const totalChecks = checks.length;
+            const score = Math.round((passedChecks / totalChecks) * 100);
+            
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreLabel = document.getElementById('scoreLabel');
+            
+            scoreValue.textContent = score;
+            
+            if (score < 50) {
+                scoreCircle.className = 'score-circle poor';
+                scoreLabel.textContent = 'Needs Improvement';
+            } else if (score < 80) {
+                scoreCircle.className = 'score-circle fair';
+                scoreLabel.textContent = 'Good';
+            } else {
+                scoreCircle.className = 'score-circle good';
+                scoreLabel.textContent = 'Excellent!';
+            }
+        }
+
+        function updateSEOChecks() {
+            const checks = performSEOChecks();
+            const container = document.getElementById('seoChecksList');
+            
+            container.innerHTML = checks.map(check => `
+                <div class="check-item ${check.status}">
+                    <div class="icon">
+                        ${check.status === 'pass' ? '✓' : check.status === 'warning' ? '!' : '✗'}
+                    </div>
+                    <div>${check.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const content = document.getElementById('content').value;
+            const focusKeyword = document.getElementById('focusKeyword').value.toLowerCase();
+            
+            const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const readingTime = Math.ceil(words / 200);
+            
+            const keywordCount = focusKeyword ? 
+                (content.toLowerCase().match(new RegExp(focusKeyword, 'g')) || []).length : 0;
+            const keywordDensity = words > 0 ? ((keywordCount / words) * 100).toFixed(2) : 0;
+            
+            document.getElementById('wordCount').textContent = words;
+            document.getElementById('readingTime').textContent = `${readingTime}m`;
+            document.getElementById('keywordCount').textContent = keywordCount;
+            document.getElementById('keywordDensity').textContent = `${keywordDensity}%`;
+        }
+
+        // ========================================
+        // TAB SWITCHING
+        // ========================================
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            const activeTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+            const activeContent = document.getElementById(`${tabName}-preview`);
+            
+            if (activeTab) activeTab.classList.add('active');
+            if (activeContent) activeContent.classList.add('active');
+        }
+
+        // ========================================
+        // DJANGO DATABASE SUBMISSION
+        // ========================================
+
+        async function saveToDjango() {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const metaTitle = document.getElementById('metaTitle').value.trim();
+            const metaDesc = document.getElementById('metaDesc').value.trim();
+            const focusKeyword = document.getElementById('focusKeyword').value.trim();
+            let slug = document.getElementById('slug').value.trim();
+            
+            if (!title) {
+                showMessage('❌ Please enter a title!', 'error');
+                document.getElementById('title').focus();
+                return;
+            }
+            
+            if (!content) {
+                showMessage('❌ Please write some content!', 'error');
+                document.getElementById('content').focus();
+                return;
+            }
+            
+            if (!slug) {
+                slug = generateSlug(title);
+                document.getElementById('slug').value = slug;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            btnText.textContent = '⏳ Saving to database...';
+            
+            try {
+                const postData = {
+                    title: title,
+                    content: content,
+                    metaTitle: metaTitle || title,
+                    metaDescription: metaDesc,
+                    focusKeyword: focusKeyword,
+                    slug: slug
+                };
+                
+                if (!CONFIG.USE_DJANGO) {
+                    setTimeout(() => {
+                        showMessage('✅ Post data ready! (Set USE_DJANGO=true in CONFIG to save to database)', 'info');
+                        console.log('Post data:', postData);
+                        submitBtn.classList.remove('loading');
+                        submitBtn.disabled = false;
+                        btnText.textContent = '💾 Save to Database';
+                    }, 1000);
+                    return;
+                }
+                
+                const response = await fetch(CONFIG.DJANGO_SUBMIT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(postData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    btnText.textContent = '✅ Saved Successfully!';
+                    showMessage(`✅ ${result.message}`, 'success');
+                    
+                    if (confirm('Post saved successfully! Do you want to view it now?')) {
+                        window.location.href = result.post_url;
+                    } else {
+                        setTimeout(() => {
+                            btnText.textContent = '💾 Save to Database';
+                            if (confirm('Do you want to create another post?')) {
+                                clearAllFields();
+                            }
+                        }, 2000);
+                    }
+                } else {
+                    btnText.textContent = '❌ Error!';
+                    showMessage(`❌ Error: ${result.message}`, 'error');
+                    setTimeout(() => {
+                        btnText.textContent = '💾 Save to Database';
+                    }, 2000);
+                }
+                
+            } catch (error) {
+                btnText.textContent = '❌ Failed!';
+                showMessage(`❌ Error: ${error.message}`, 'error');
+                console.error('Save error:', error);
+                setTimeout(() => {
+                    btnText.textContent = '💾 Save to Database';
+                }, 3000);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // ========================================
+        // EXPORT FUNCTIONS
+        // ========================================
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        function exportAsJSON() {
+            const data = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                metaTitle: document.getElementById('metaTitle').value,
+                metaDescription: document.getElementById('metaDesc').value,
+                focusKeyword: document.getElementById('focusKeyword').value,
+                slug: document.getElementById('slug').value || generateSlug(document.getElementById('title').value),
+                createdAt: new Date().toISOString(),
+                seoScore: document.getElementById('scoreValue').textContent
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `blog-post-${data.slug || 'untitled'}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            closeModal();
+            showMessage('✅ Post exported as JSON!', 'success');
+        }
+
+        function exportAsHTML() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const metaTitle = document.getElementById('metaTitle').value || title;
+            const metaDesc = document.getElementById('metaDesc').value;
+            const focusKeyword = document.getElementById('focusKeyword').value;
+            const slug = document.getElementById('slug').value || generateSlug(title);
+            
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>${metaTitle}</title>
+    <meta name="description" content="${metaDesc}">
+    ${focusKeyword ? `<meta name="keywords" content="${focusKeyword}">` : ''}
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="${metaTitle}">
+    <meta property="og:description" content="${metaDesc}">
+    <meta property="og:url" content="https://yourwebsite.com/blog/${slug}">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${metaTitle}">
+    <meta name="twitter:description" content="${metaDesc}">
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "${title.replace(/"/g, '\\"')}",
+      "description": "${metaDesc.replace(/"/g, '\\"')}",
+      "datePublished": "${new Date().toISOString()}"
+    }
+    <\/script>
+</head>
+<body>
+    <article>
+        <h1>${title}</h1>
+        <div class="content">
+            ${content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('\n            ')}
+        </div>
+    </article>
+</body>
+</html>`;
+            
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${slug || 'untitled'}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            closeModal();
+            showMessage('✅ Post exported as HTML!', 'success');
+        }
+
+        function copyMetaTags() {
+            const title = document.getElementById('title').value;
+            const metaTitle = document.getElementById('metaTitle').value || title;
+            const metaDesc = document.getElementById('metaDesc').value;
+            const focusKeyword = document.getElementById('focusKeyword').value;
+            const slug = document.getElementById('slug').value || generateSlug(title);
+            
+            const metaTags = `<!-- SEO Meta Tags -->
+<title>${metaTitle}</title>
+<meta name="description" content="${metaDesc}">
+${focusKeyword ? `<meta name="keywords" content="${focusKeyword}">` : ''}
+
+<!-- Open Graph -->
+<meta property="og:title" content="${metaTitle}">
+<meta property="og:description" content="${metaDesc}">
+<meta property="og:url" content="https://yourwebsite.com/blog/${slug}">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${metaTitle}">
+<meta name="twitter:description" content="${metaDesc}">`;
+            
+            navigator.clipboard.writeText(metaTags).then(() => {
+                closeModal();
+                showMessage('✅ Meta tags copied to clipboard!', 'success');
+            }).catch(err => {
+                showMessage('❌ Failed to copy. Please try again.', 'error');
+                console.error('Copy error:', err);
+            });
+        }
+
+        // ========================================
+        // FORM ACTIONS
+        // ========================================
+
+        function clearAllFields() {
+            if (confirm('Are you sure you want to clear all fields?')) {
+                ['title', 'content', 'metaTitle', 'metaDesc', 'focusKeyword', 'slug'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                updateAll();
+                showMessage('🗑️ All fields cleared', 'info');
+            }
+        }
+
+        function saveToLocalStorage() {
+            const data = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                metaTitle: document.getElementById('metaTitle').value,
+                metaDesc: document.getElementById('metaDesc').value,
+                focusKeyword: document.getElementById('focusKeyword').value,
+                slug: document.getElementById('slug').value
+            };
+            
+            localStorage.setItem('blog-post-draft', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('blog-post-draft');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    Object.keys(data).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) element.value = data[key] || '';
+                    });
+                    
+                    updateAll();
+                    showMessage('💾 Draft loaded from browser', 'info');
+                } catch (e) {
+                    console.error('Failed to load draft:', e);
+                }
+            }
+        }
+
+        function updateAll() {
+            updatePreviews();
+            updateSEOChecks();
+            calculateSEOScore();
+            updateStats();
+            
+            updateCharCount('title', 'titleCount', 60, 100);
+            updateCharCount('metaTitle', 'metaTitleCount', 60, 70);
+            updateCharCount('metaDesc', 'metaDescCount', 160, 180);
+            updateCharCount('content', 'contentCount', 0, 0);
+        }
+
+        // ========================================
+        // EVENT LISTENERS
+        // ========================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Auto-update slug when title changes
+            document.getElementById('title').addEventListener('input', function() {
+                const slugInput = document.getElementById('slug');
+                if (!slugInput.value || slugInput.dataset.autoGenerated === 'true') {
+                    slugInput.value = generateSlug(this.value);
+                    slugInput.dataset.autoGenerated = 'true';
+                }
+            });
+
+            // Manual slug edit disables auto-generation
+            document.getElementById('slug').addEventListener('input', function() {
+                this.dataset.autoGenerated = 'false';
+            });
+
+            // Event listeners for real-time updates
+            ['title', 'content', 'metaTitle', 'metaDesc', 'focusKeyword', 'slug'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updateAll);
+                }
+            });
+
+            // Button click handlers
+            document.getElementById('submitBtn').addEventListener('click', saveToDjango);
+            document.getElementById('exportBtn').addEventListener('click', openExportModal);
+            document.getElementById('clearBtn').addEventListener('click', clearAllFields);
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            
+            // Export options
+            document.getElementById('exportJSON').addEventListener('click', exportAsJSON);
+            document.getElementById('exportHTML').addEventListener('click', exportAsHTML);
+            document.getElementById('copyMeta').addEventListener('click', copyMetaTags);
+
+            // Close modal when clicking outside
+            document.getElementById('exportModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Load saved draft
+            loadFromLocalStorage();
+            
+            // Initial update
+            updateSEOChecks();
+            
+            // Show welcome message
+            setTimeout(() => {
+                showMessage('👋 Welcome! Start writing your SEO-optimized blog post', 'info');
+            }, 500);
+
+            // Auto-save every 30 seconds
+            setInterval(() => {
+                const title = document.getElementById('title').value;
+                const content = document.getElementById('content').value;
+                if (title || content) {
+                    saveToLocalStorage();
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

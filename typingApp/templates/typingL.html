@@ -1,0 +1,748 @@
+{% extends "base2.html" %}
+{% block title %}Classic Lessons - Typing Mastery{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(180deg, #050d1a 0%, #0a1628 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* Starry background effect */
+  .stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    animation: twinkle 3s infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .lessons-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
+  }
+
+  .header p {
+    font-size: 1.25rem;
+    color: #e0e7ff;
+    font-weight: 400;
+  }
+
+  /* Lesson Path SVG Lines */
+  .lesson-path {
+    position: relative;
+    width: 100%;
+    min-height: 2500px;
+  }
+
+  /* Section Headers */
+  .section-divider {
+    text-align: center;
+    margin: 3rem 0 2rem 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .section-divider h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(96, 165, 250, 0.6);
+  }
+
+  .section-title {
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    z-index: 2;
+  }
+
+  .section-title h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 30px rgba(96, 165, 250, 0.8);
+    margin-bottom: 1rem;
+  }
+
+  svg.path-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .path-line {
+    stroke: rgba(96, 165, 250, 0.6);
+    stroke-width: 3;
+    fill: none;
+    stroke-dasharray: 5, 5;
+    animation: dash 20s linear infinite;
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  /* Lesson Nodes */
+  .lesson-node {
+    position: absolute;
+    z-index: 2;
+    transition: transform 0.3s ease;
+  }
+
+  .lesson-node:hover {
+    transform: scale(1.05);
+  }
+
+  .lesson-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  /* Lesson states */
+  .lesson-circle.in-progress {
+    background: rgba(59, 130, 246, 0.25);
+    border: 4px solid #60a5fa;
+    box-shadow: 0 0 40px rgba(96, 165, 250, 0.6),
+                inset 0 0 30px rgba(59, 130, 246, 0.2);
+  }
+
+  .lesson-circle.completed {
+    background: rgba(251, 191, 36, 0.25);
+    border: 4px solid #fbbf24;
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.6),
+                inset 0 0 30px rgba(251, 191, 36, 0.2);
+  }
+
+  .lesson-circle.fully-completed {
+    background: rgba(34, 197, 94, 0.25);
+    border: 4px solid #4ade80;
+    box-shadow: 0 0 40px rgba(74, 222, 128, 0.6),
+                inset 0 0 30px rgba(34, 197, 94, 0.2);
+  }
+
+  .lesson-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 1;
+    color: #e0e7ff;
+  }
+
+  .lesson-keys {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 8px;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+
+  .lesson-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #f0f9ff;
+  }
+
+  .progress-percent {
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .time-estimate {
+    color: #cbd5e1;
+  }
+
+  .lesson-button {
+    margin-top: 1rem;
+    padding: 0.75rem 2rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .lesson-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Review nodes - special styling */
+  .review-circle {
+    width: 200px;
+    height: 200px;
+  }
+
+  .review-circle .lesson-keys {
+    font-size: 2rem;
+    letter-spacing: 6px;
+  }
+
+  .review-circle.fully-completed .checkmark {
+    font-size: 3rem;
+    color: #4ade80;
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.8);
+  }
+
+  /* Positioning for lessons with gaps only between major sections */
+  
+  /* HOME ROW SECTION (including review) */
+  .node-fj { top: 120px; left: 10%; }
+  .node-gh { top: 120px; left: 37%; }
+  .node-dk { top: 120px; right: 10%; }
+  .node-sl { top: 340px; left: 23%; }
+  .node-asemi { top: 340px; right: 23%; }
+  .node-review-homerow { top: 580px; left: 50%; transform: translateX(-50%); }
+  
+  /* GAP - then TOP ROW SECTION starts (including review) */
+  .node-ru { top: 940px; left: 10%; }
+  .node-ty { top: 940px; left: 37%; }
+  .node-ei { top: 940px; right: 10%; }
+  .node-wo { top: 1160px; left: 23%; }
+  .node-qp { top: 1160px; right: 23%; }
+  .node-review-toprow { top: 1400px; left: 50%; transform: translateX(-50%); }
+  
+  /* GAP - then BOTTOM ROW SECTION starts (including review) */
+  .node-zx { top: 1760px; left: 10%; }
+  .node-cv { top: 1760px; left: 37%; }
+  .node-bn { top: 1760px; right: 10%; }
+  .node-m { top: 1980px; left: 23%; }
+  .node-comma { top: 1980px; right: 23%; }
+  .node-review-bottomrow { top: 2220px; left: 50%; transform: translateX(-50%); }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header h1 {
+      font-size: 2.5rem;
+    }
+
+    .lesson-circle {
+      width: 140px;
+      height: 140px;
+    }
+
+    .lesson-keys {
+      font-size: 2rem;
+      letter-spacing: 6px;
+    }
+
+    .review-circle {
+      width: 150px;
+      height: 150px;
+    }
+
+    .lesson-path {
+      min-height: 2300px;
+    }
+
+    /* Adjust positioning for mobile - reviews connected to lessons */
+    /* HOME ROW SECTION */
+    .node-fj { top: 120px; left: 5%; }
+    .node-gh { top: 120px; left: 50%; transform: translateX(-50%); }
+    .node-dk { top: 120px; right: 5%; }
+    .node-sl { top: 300px; left: 25%; }
+    .node-asemi { top: 300px; right: 25%; }
+    .node-review-homerow { top: 520px; left: 50%; transform: translateX(-50%); }
+    
+    /* TOP ROW SECTION */
+    .node-ru { top: 840px; left: 5%; }
+    .node-ty { top: 840px; left: 50%; transform: translateX(-50%); }
+    .node-ei { top: 840px; right: 5%; }
+    .node-wo { top: 1020px; left: 25%; }
+    .node-qp { top: 1020px; right: 25%; }
+    .node-review-toprow { top: 1240px; left: 50%; transform: translateX(-50%); }
+    
+    /* BOTTOM ROW SECTION */
+    .node-zx { top: 1560px; left: 5%; }
+    .node-cv { top: 1560px; left: 50%; transform: translateX(-50%); }
+    .node-bn { top: 1560px; right: 5%; }
+    .node-m { top: 1740px; left: 25%; }
+    .node-comma { top: 1740px; right: 25%; }
+    .node-review-bottomrow { top: 1960px; left: 50%; transform: translateX(-50%); }
+  }
+
+  /* Glow animation */
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 40px rgba(96, 165, 250, 0.6),
+                  inset 0 0 30px rgba(59, 130, 246, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 60px rgba(96, 165, 250, 0.8),
+                  0 0 80px rgba(59, 130, 246, 0.4),
+                  inset 0 0 40px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  .lesson-circle.in-progress {
+    animation: glow 2s infinite;
+  }
+</style>
+
+<!-- Starry Background -->
+<div class="stars" id="stars"></div>
+
+<div class="lessons-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Classic Lessons</h1>
+    <p>Your step-by-step journey to typing mastery.</p>
+  </div>
+
+  <!-- Lesson Path -->
+  <div class="lesson-path">
+    <!-- SVG Path Lines - Connected design within sections, gaps between sections -->
+    <svg class="path-lines" viewBox="0 0 1200 2400" preserveAspectRatio="xMidYMid meet">
+      <!-- HOME ROW SECTION - 3 nodes on top connected, 2 on bottom, then review -->
+      <path class="path-line" d="M 150 190 L 450 190" />
+      <path class="path-line" d="M 450 190 L 1050 190" />
+      <path class="path-line" d="M 150 190 L 300 410" />
+      <path class="path-line" d="M 450 190 L 300 410" />
+      <path class="path-line" d="M 450 190 L 900 410" />
+      <path class="path-line" d="M 1050 190 L 900 410" />
+      <path class="path-line" d="M 300 410 L 600 650" />
+      <path class="path-line" d="M 900 410 L 600 650" />
+      
+      <!-- TOP ROW SECTION - 3 nodes on top connected, 2 on bottom, then review -->
+      <path class="path-line" d="M 150 1010 L 450 1010" />
+      <path class="path-line" d="M 450 1010 L 1050 1010" />
+      <path class="path-line" d="M 150 1010 L 300 1230" />
+      <path class="path-line" d="M 450 1010 L 300 1230" />
+      <path class="path-line" d="M 450 1010 L 900 1230" />
+      <path class="path-line" d="M 1050 1010 L 900 1230" />
+      <path class="path-line" d="M 300 1230 L 600 1470" />
+      <path class="path-line" d="M 900 1230 L 600 1470" />
+      
+      <!-- BOTTOM ROW SECTION - 3 nodes on top connected, 2 on bottom, then review -->
+      <path class="path-line" d="M 150 1830 L 450 1830" />
+      <path class="path-line" d="M 450 1830 L 1050 1830" />
+      <path class="path-line" d="M 150 1830 L 300 2050" />
+      <path class="path-line" d="M 450 1830 L 300 2050" />
+      <path class="path-line" d="M 450 1830 L 900 2050" />
+      <path class="path-line" d="M 1050 1830 L 900 2050" />
+      <path class="path-line" d="M 300 2050 L 600 2290" />
+      <path class="path-line" d="M 900 2050 L 600 2290" />
+    </svg>
+      <path class="path-line" d="M 120 2010 L 600 2250" />
+      <path class="path-line" d="M 440 2010 L 600 2250" />
+      <path class="path-line" d="M 1000 2010 L 600 2250" />
+    </svg>
+
+    <!-- ==================== HOME ROW SECTION ==================== -->
+    
+    <!-- Section Title -->
+    <div class="section-title" style="top: 20px;">
+      <h2>HOME ROW</h2>
+    </div>
+    
+    <!-- Lesson 1: F J -->
+    <div class="lesson-node node-fj">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 1</div>
+        <div class="lesson-keys">F J</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">45%</span>
+          <span class="time-estimate">1 min</span>
+        </div>
+      </div>
+      <a href="{% url 'FJ' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 2: G H -->
+    <div class="lesson-node node-gh">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 2</div>
+        <div class="lesson-keys">G H</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">30%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+      <a href="{% url 'GH' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 3: D K -->
+    <div class="lesson-node node-dk">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 3</div>
+        <div class="lesson-keys">D K</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">65%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+       <a href="{% url 'DK' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 4: S L -->
+    <div class="lesson-node node-sl">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 4</div>
+        <div class="lesson-keys">S L</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">20%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+       <a href="{% url 'SL' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 5: A ; -->
+    <div class="lesson-node node-asemi">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 5</div>
+        <div class="lesson-keys">A ;</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">10%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+       <a href="{% url 'A' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- HOME ROW REVIEW - Connected to lessons above -->
+    <div class="lesson-node node-review-homerow">
+      <div class="lesson-circle review-circle completed">
+        <div class="lesson-label">Home Row Review</div>
+        <div class="lesson-keys" style="font-size: 1.8rem; letter-spacing: 4px;">ASDFGHJKL;</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">100% Completed</span>
+        </div>
+      </div>
+       <a href="{% url 'homeRowPractice' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Section Gap Between Home Row and Top Row -->
+    <div class="section-divider" style="position: absolute; top: 720px; width: 100%; left: 0;">
+      <h3>━━━━━━━━━━━━━━━━━━</h3>
+    </div>
+
+    <!-- ==================== TOP ROW SECTION ==================== -->
+    
+    <!-- Section Title -->
+    <div class="section-title" style="top: 840px;">
+      <h2>TOP ROW</h2>
+    </div>
+    
+    <!-- Lesson 6: R U -->
+    <div class="lesson-node node-ru">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 6</div>
+        <div class="lesson-keys">R U</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">50%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+       <a href="{% url 'RU' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 7: T Y -->
+    <div class="lesson-node node-ty">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 7</div>
+        <div class="lesson-keys">T Y</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">35%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+      <a href="{% url 'TY' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 8: E I -->
+    <div class="lesson-node node-ei">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 8</div>
+        <div class="lesson-keys">E I</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">40%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+      <a href="{% url 'EI' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 9: W O -->
+    <div class="lesson-node node-wo">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 9</div>
+        <div class="lesson-keys">W O</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">25%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+      <a href="{% url 'WO' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 10: Q P -->
+    <div class="lesson-node node-qp">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 10</div>
+        <div class="lesson-keys">Q P</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">15%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+      <a href="{% url 'QP' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- TOP ROW REVIEW - Connected to lessons above -->
+    <div class="lesson-node node-review-toprow">
+      <div class="lesson-circle review-circle completed">
+        <div class="lesson-label">Top Row Review</div>
+        <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px;">QWERTYUIOP</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">100% Completed</span>
+        </div>
+      </div>
+      <a href="{% url 'topRowPractice' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Section Gap Between Top Row and Bottom Row -->
+    <div class="section-divider" style="position: absolute; top: 1540px; width: 100%; left: 0;">
+      <h3>━━━━━━━━━━━━━━━━━━</h3>
+    </div>
+
+    <!-- ==================== BOTTOM ROW SECTION ==================== -->
+    
+    <!-- Section Title -->
+    <div class="section-title" style="top: 1660px;">
+      <h2>BOTTOM ROW</h2>
+    </div>
+    
+    <!-- Lesson 11: Z X -->
+    <div class="lesson-node node-zx">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 11</div>
+        <div class="lesson-keys">V N</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">35%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+      <a href="{% url 'VN' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 12: C V -->
+    <div class="lesson-node node-cv">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 12</div>
+        <div class="lesson-keys">B /</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">20%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+      <a href="{% url 'BB' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 13: B N -->
+    <div class="lesson-node node-bn">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 13</div>
+        <div class="lesson-keys">C M</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">45%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+      <a href="{% url 'CM' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 14: M -->
+    <div class="lesson-node node-m">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 14</div>
+        <div class="lesson-keys">X ,</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">30%</span>
+          <span class="time-estimate">2 min</span>
+        </div>
+      </div>
+      <a href="{% url 'X' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- Lesson 15: , . / -->
+    <div class="lesson-node node-comma">
+      <div class="lesson-circle in-progress">
+        <div class="lesson-label">Lesson 15</div>
+        <div class="lesson-keys"> Z . </div>
+        <div class="lesson-progress">
+          <span class="progress-percent">10%</span>
+          <span class="time-estimate">3 min</span>
+        </div>
+      </div>
+      <a href="{% url 'Z' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+
+    <!-- BOTTOM ROW REVIEW - Connected to lessons above -->
+    <div class="lesson-node node-review-bottomrow">
+      <div class="lesson-circle review-circle fully-completed">
+        <div class="lesson-label">Bottom Row Review</div>
+        <div class="checkmark">✓</div>
+        <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px; margin-top: 0.5rem;">ZXCVBNM,./</div>
+        <div class="lesson-progress">
+          <span class="progress-percent">100% Completed</span>
+        </div>
+      </div>
+      <a href="{% url 'BottomRowPractce' %}">
+  <button class="lesson-button">Start Lesson</button>
+</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Generate stars
+  function createStars() {
+    const starsContainer = document.getElementById('stars');
+    const numStars = 100;
+    
+    for (let i = 0; i < numStars; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      starsContainer.appendChild(star);
+    }
+  }
+
+  createStars();
+
+  // Add click handlers to lesson buttons
+  document.querySelectorAll('.lesson-button').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const lessonNode = this.closest('.lesson-node');
+      const lessonLabel = lessonNode.querySelector('.lesson-label').textContent;
+      
+      // Add your navigation logic here
+    });
+  });
+
+  // Add click handlers to lesson circles
+  document.querySelectorAll('.lesson-circle').forEach(circle => {
+    circle.addEventListener('click', function() {
+      const lessonLabel = this.querySelector('.lesson-label').textContent;
+      console.log(`Clicked on ${lessonLabel}`);
+      // Add your navigation logic here
+    });
+  });
+</script>
+
+{% endblock content %}

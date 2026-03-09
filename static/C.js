@@ -1,0 +1,6 @@
+const C=[
+    "C.C ..C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C",
+    "C.C ..C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C",
+    "C.C ..C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C",
+    "C.C ..C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. C.C ..C CC. C.C ..C CC. ..C C.C CC. ..C C.C CC. ..C C.C CC. ..C C.C"
+]

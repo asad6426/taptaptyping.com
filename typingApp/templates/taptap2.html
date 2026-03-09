@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="/static/taptaptyping logo.jpg" type="image/png">
+    <style>
+        /* Additional styles */
+        .correct {
+            color: green;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .incorrect {
+            color: red;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+<nav class="w-full bg-[#0D6073] text-white">
+  <div class="container mx-auto flex items-center justify-between px-4 py-3">
+    <!-- Logo and Brand -->
+    <a href="/" class="flex items-center space-x-2 text-white text-xl font-semibold">
+      <img src="/static/taptaptyping logo.jpg" alt="Logo" class="w-10 h-10 rounded-full">
+      <span>TapTapTyping</span>
+    </a>
+
+    <!-- Hamburger Menu -->
+    <button id="hamburgerBtn" class="lg:hidden focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Nav Links -->
+    <div id="navMenu" class="hidden lg:flex lg:items-center lg:space-x-6 text-[1.2rem]">
+      <a href="/" class="hover:text-[#FFD700]">Home</a>
+      <a href="{% url 'taptap' %}" class="hover:text-[#FFD700]">Typing Test</a>
+      <a href="{% url 'typingLession' %}" class="hover:text-[#FFD700]">Typing Lesson</a>
+      <a href="{% url 'taptap' %}" class="hover:text-[#FFD700]">Typing Games</a>
+      <a href="{% url 'taptap' %}" class="hover:text-[#FFD700]">Typing Blog</a>
+      <a href="{% url 'jobs' %}" class="hover:text-[#FFD700]">JobPosts</a>
+
+      <!-- Dropdown -->
+      <div class="relative group">
+        <button class="hover:text-[#FFD700] flex items-center gap-1">Others</button>
+        <ul class="absolute hidden group-hover:block mt-2 bg-[#0D6073] rounded-md shadow-lg w-48 z-10">
+          <li><a href="{% url 'FAQ' %}" class="block px-4 py-2 text-[1.1rem] text-white hover:bg-[#FFD700] hover:text-[#0D6073]">FAQ</a></li>
+          <li><a href="{% url 'aboutus' %}" class="block px-4 py-2 text-[1.1rem] text-white hover:bg-[#FFD700] hover:text-[#0D6073]">About Us</a></li>
+          <li><a href="#" class="block px-4 py-2 text-[1.1rem] text-white hover:bg-[#FFD700] hover:text-[#0D6073]">Something else here</a></li>
+        </ul>
+      </div>
+
+      {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="hover:text-[#FFD700]">Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}" class="hover:text-[#FFD700]">Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="lg:hidden hidden px-4 pb-4 space-y-2 text-[1.2rem]">
+    <a href="/" class="block hover:text-[#FFD700]">Home</a>
+    <a href="{% url 'taptap' %}" class="block hover:text-[#FFD700]">Typing Test</a>
+    <a href="{% url 'taptap' %}" class="block hover:text-[#FFD700]">Typing Lesson</a>
+    <a href="{% url 'taptap' %}" class="block hover:text-[#FFD700]">Typing Games</a>
+    <a href="{% url 'blogs' %}" class="block hover:text-[#FFD700]">Typing Blog</a>
+    <a href="{% url 'jobs' %}" class="block hover:text-[#FFD700]">JobPosts</a>
+
+    <!-- Mobile Dropdown -->
+    <div class="border-t pt-2">
+      <div class="font-semibold">Others</div>
+      <a href="{% url 'FAQ' %}" class="block pl-4 hover:text-[#FFD700]">FAQ</a>
+      <a href="{% url 'aboutus' %}" class="block pl-4 hover:text-[#FFD700]">About Us</a>
+      <a href="#" class="block pl-4 hover:text-[#FFD700]">Something else here</a>
+    </div>
+
+    {% if user.is_authenticated %}
+    <a href="{% url 'logout' %}" class="block hover:text-[#FFD700]">Logout</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="block hover:text-[#FFD700]">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Toggle Script -->
+<script>
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  hamburgerBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
+
+    <div class="flex">
+    
+    <main class="flex flex-col w-full p-4 bg-gray-900 text-white flex items-center justify-center min-h-screen py-8">
+        <h1 class="mb-8 text-4xl font-bold">Typing Speed Test</h1>
+
+        <!-- Difficulty and Time Limit Controls -->
+        <div class="flex gap-4 mb-6">
+            <label for="difficulty" class="sr-only">Select Difficulty</label>
+            <select id="difficulty" name="difficulty" class="w-48 px-4 py-2 text-black bg-white border-none rounded-md" aria-label="Select Difficulty">
+                <option value="Easy" {% if text_type == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Medium" {% if text_type == 'Medium' %}selected{% endif %}>Medium</option>
+                <option value="Hard" {% if text_type == 'Hard' %}selected{% endif %}>Hard</option>
+            </select>
+
+            <label for="time-limit" class="sr-only">Select Time Limit</label>
+            <select id="time-limit" name="test_duration" class="w-48 px-4 py-2 text-black bg-white border-none rounded-md" aria-label="Select Time Limit">
+                <option value="30" {% if test_duration == '30' %}selected{% endif %}>30 seconds</option>
+                <option value="60" {% if test_duration == '60' %}selected{% endif %} selected>1 minute</option>
+                <option value="120" {% if test_duration == '120' %}selected{% endif %}>2 minutes</option>
+                <option value="180" {% if test_duration == '180' %}selected{% endif %}>3 minutes</option>
+                <option value="300" {% if test_duration == '300' %}selected{% endif %}>5 minutes</option>
+            </select>
+        </div>
+
+        <!-- Timer and Stats -->
+        <div class="flex justify-around w-full max-w-md p-4 mb-6 bg-gray-700 rounded-lg shadow-lg">
+            <div class="text-center">
+                <p class="text-lg font-medium text-gray-300">Time Left</p>
+                <p id="time-left" class="text-3xl font-bold text-yellow-400">{{ test_duration }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-lg font-medium text-gray-300">WPM</p>
+                <p id="wpm" class="text-3xl font-bold text-green-400">0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-lg font-medium text-gray-300">Accuracy</p>
+                <p id="accuracy" class="text-3xl font-bold text-blue-400">100%</p>
+            </div>
+        </div>
+
+        <!-- Typing Text Display -->
+        <div id="generated-text" class="w-full max-w-2xl p-4 mb-6 bg-gray-800 border border-blue-500 rounded-md" role="textbox" aria-live="polite">
+            <!-- Dynamic text goes here -->
+        </div>
+
+        <!-- Input Area -->
+        <textarea id="input-text" class="w-full h-24 max-w-2xl p-4 text-white bg-gray-800 rounded-md focus:outline-none" placeholder="Start typing here..." disabled aria-label="Typing input area"></textarea>
+
+        <!-- Buttons -->
+        <div class="flex gap-4 mt-6">
+            <button id="start-btn" onclick="startTest()" class="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700" aria-label="Start Test">Start</button>
+            <button id="reset-btn" class="px-6 py-2 text-white bg-orange-500 rounded-md hover:bg-orange-600" aria-label="Reset Test">Reset</button>
+        </div>
+        </main>
+    </div>
+    
+
+    <script>
+        // Sample texts for each difficulty level
+        const sampleTexts = {
+            Easy: [
+                "The golden rays of the setting sun illuminated the horizon, casting a warm glow across the tranquil landscape.",
+                "Boys are curious, energetic, and full of potential, bringing their unique energy and creativity to the world.",
+                "Farmers are the backbone of society, working tirelessly to provide the food that sustains us all."
+            ],
+            Medium: [
+                "Girls are resilient, creative, and full of potential, bringing unique perspectives to the world.",
+                "Fathers are pillars of strength, love, and guidance in a family.",
+                "Mothers are the heart of the family, embodying unconditional love, care, and resilience."
+            ],
+            Hard: [
+                "The world is a fascinating place, filled with endless opportunities to learn, explore, and grow.",
+                "Success is the result of perseverance, hard work, and a clear vision."
+            ]
+        };
+
+        let timeLimit = {{ test_duration }}; // Default time in seconds
+        let timeLeft = timeLimit;
+        let testStarted = false;
+        let difficulty = '{{ text_type }}';
+        let generatedText = '';
+        let inputText = '';
+        let wpm = 0;
+        let accuracy = 100;
+        let errors = 0;
+
+        // Get random text based on the difficulty
+        const getRandomText = () => {
+            const texts = sampleTexts[difficulty];
+            return texts[Math.floor(Math.random() * texts.length)];
+        };
+
+        // Set the generated text
+        const setGeneratedText = () => {
+            generatedText = getRandomText();
+            document.getElementById('generated-text').innerHTML = generatedText.split('').map(char => {
+                return `<span>${char}</span>`;
+            }).join('');
+        };
+
+        // Start the test
+        const startTest = () => {
+            testStarted = true;
+            inputText = '';
+            document.getElementById('input-text').disabled = false;
+            document.getElementById('input-text').value = '';
+            timeLimit = parseInt(document.getElementById('time-limit').value); // Get selected time limit
+            timeLeft = timeLimit; // Reset time left
+            document.getElementById('time-left').textContent = timeLeft + 's';
+            setGeneratedText();
+            startTimer();
+            
+        };
+
+        // Timer functionality
+        let timerInterval; // Declare globally to avoid multiple intervals
+
+const startTimer = () => {
+    clearInterval(timerInterval); // Stop any previous timers to prevent duplication
+
+    timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--; // Reduce time by 1 second
+            document.getElementById('time-left').textContent = timeLeft + 's'; // Update UI
+        } else {
+            calculateResults();
+            clearInterval(timerInterval); // Stop the timer when it reaches 0
+
+            
+        }
+    }, 1000); // Ensures 1-second interval
+};
+
+
+
+        // Finish the test and calculate WPM and accuracy
+        const finishTest = () => {
+            testStarted = false;
+            calculateResults();
+            clearInterval(timerInterval);
+            
+        };
+
+        // Calculate WPM and accuracy
+        const calculateResults = () => {
+            const wordsTyped = inputText.trim().split(" ").length;
+            const correctChars = [...inputText].filter((char, idx) => char === generatedText[idx]).length;
+            const totalTyped = inputText.length;
+
+            wpm = Math.round((wordsTyped / (timeLimit / 60)) || 0);
+            accuracy = totalTyped > 0 ? ((correctChars / totalTyped) * 100).toFixed(0) : 100; // Updated accuracy calculation
+            document.getElementById('wpm').textContent = wpm;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        };
+
+        // Handle user input
+        document.getElementById('input-text').addEventListener('input', (e) => {
+            inputText = e.target.value;
+
+            // Prevent typing more characters than the generated text
+            if (inputText.length > generatedText.length) {
+                inputText = inputText.slice(0, generatedText.length);
+                document.getElementById('input-text').value = inputText;
+            }
+
+            const correctChars = inputText.split("").filter((char, idx) => char === generatedText[idx]).length;
+            const totalTyped = inputText.length;
+
+            // Update accuracy based on the characters typed
+            accuracy = totalTyped > 0 ? ((correctChars / totalTyped) * 100).toFixed(0) : 100; // Updated accuracy calculation
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            // Update the text with color feedback
+            const generatedChars = [...generatedText];
+            const inputChars = [...inputText];
+
+            const updatedText = generatedChars.map((char, idx) => {
+                const inputChar = inputChars[idx];
+                if (inputChar) {
+                    if (inputChar === char) {
+                        return `<span class="correct">${inputChar}</span>`;
+                    } else {
+                        return `<span class="incorrect">${inputChar}</span>`;
+                    }
+                }
+                return `<span>${char}</span>`; // Unmatched characters remain as is
+            });
+
+            document.getElementById('generated-text').innerHTML = updatedText.join('');
+
+            if (inputText.length === generatedText.length) {
+                finishTest();
+            }
+        });
+
+        // Reset the test
+        const resetTest = () => {
+            testStarted = false;
+            inputText = '';
+            timeLeft = timeLimit;
+            wpm = 0;
+            accuracy = 100;
+            errors = 0;
+            document.getElementById('input-text').disabled = true;
+            document.getElementById('input-text').value = '';
+            document.getElementById('time-left').textContent = timeLimit + 's';
+            document.getElementById('wpm').textContent = wpm;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            setGeneratedText();
+        };
+
+        // Event Listeners for Buttons
+        document.getElementById('start-btn').addEventListener('click', startTest);
+        document.getElementById('reset-btn').addEventListener('click', resetTest);
+
+        // Set difficulty level
+        document.getElementById('difficulty').addEventListener('change', (e) => {
+            difficulty = e.target.value;
+            setGeneratedText();
+        });
+
+        // Initialize the test
+        setGeneratedText();
+    </script>
+</body>
+</html>

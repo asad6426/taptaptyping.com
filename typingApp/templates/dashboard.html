@@ -1,0 +1,774 @@
+{% extends "base2.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .dashboard-body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0a1628 0%, #1a2942 50%, #0f1b2d 100%);
+        min-height: 100vh;
+        padding: 30px 20px;
+        color: white;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .welcome-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #60D5FF, #A8E6FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 5px;
+    }
+
+    .welcome-section p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1rem;
+    }
+
+    .rank-badge {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+        border: 2px solid rgba(139, 92, 246, 0.5);
+        border-radius: 20px;
+        padding: 15px 30px;
+        text-align: center;
+    }
+
+    .rank-badge .rank-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 5px;
+    }
+
+    .rank-badge .rank-value {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #8B5CF6, #EC4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .rank-badge .rank-total {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--card-gradient);
+    }
+
+    .stat-card .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        background: var(--card-gradient);
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 5px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+    }
+
+    .stat-card .stat-change {
+        font-size: 0.85rem;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .stat-change.positive {
+        color: #10B981;
+    }
+
+    .stat-change.negative {
+        color: #EF4444;
+    }
+
+    /* Badge Card */
+    .badge-card {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+        border: 2px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-card .badge-display {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .badge-card .badge-icon-large {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        background: var(--badge-bg);
+        box-shadow: 0 10px 30px var(--badge-glow);
+    }
+
+    .badge-card .badge-info .badge-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: var(--badge-bg);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .badge-card .badge-info .badge-desc {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Charts Section */
+    .charts-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .chart-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chart-card h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    /* Progress Circle */
+    .progress-circles {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .circle-item {
+        text-align: center;
+    }
+
+    .circle-item .circle-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 10px;
+    }
+
+    .progress-ring {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+
+    .progress-ring svg {
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring .bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 8;
+    }
+
+    .progress-ring .progress {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease;
+    }
+
+    .progress-ring .value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    /* Recent Tests */
+    .recent-section {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .recent-section h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .test-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .test-item {
+        display: grid;
+        grid-template-columns: 80px 1fr 1fr 1fr 100px;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .test-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateX(5px);
+    }
+
+    .test-date {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .test-stat {
+        text-align: center;
+    }
+
+    .test-stat .label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 3px;
+    }
+
+    .test-stat .value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .test-marks {
+        text-align: right;
+    }
+
+    .test-marks .marks-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #60D5FF, #A8E6FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .test-marks .marks-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* No Data State */
+    .no-data {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .no-data .icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .no-data h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: white;
+    }
+
+    .no-data p {
+        margin-bottom: 20px;
+    }
+
+    .no-data .btn-start {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #60D5FF, #3B82F6);
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .no-data .btn-start:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(96, 213, 255, 0.3);
+    }
+
+    /* Improvement Cards */
+    .improvement-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .improvement-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .improvement-card .imp-label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 5px;
+    }
+
+    .improvement-card .imp-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+    }
+
+    .improvement-card .imp-value.positive {
+        color: #10B981;
+    }
+
+    .improvement-card .imp-value.negative {
+        color: #EF4444;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .charts-section {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .welcome-section h1 {
+            font-size: 1.8rem;
+        }
+
+        .test-item {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .test-date {
+            grid-column: span 2;
+        }
+
+        .test-marks {
+            grid-column: span 2;
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="dashboard-body">
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1>Welcome, {{ user.username|title }}!</h1>
+                <p>Track your typing progress and improve your skills</p>
+            </div>
+            
+            {% if rank %}
+            <div class="rank-badge">
+                <div class="rank-label">Your Rank</div>
+                <div class="rank-value">#{{ rank }}</div>
+                <div class="rank-total">out of {{ total_users }} users</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if score %}
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Total Score -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #60D5FF, #3B82F6);">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-label">Total Score</div>
+                <div class="stat-value">{{ score.total_score|floatformat:0 }}</div>
+            </div>
+
+            <!-- Average WPM -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #10B981, #059669);">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-label">Average WPM</div>
+                <div class="stat-value">{{ score.average_wpm|floatformat:0 }}</div>
+                {% if wpm_improvement != 0 %}
+                <div class="stat-change {% if wpm_improvement > 0 %}positive{% else %}negative{% endif %}">
+                    {% if wpm_improvement > 0 %}↑{% else %}↓{% endif %} {{ wpm_improvement }} from first test
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Average Accuracy -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #F59E0B, #D97706);">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">Average Accuracy</div>
+                <div class="stat-value">{{ score.average_accuracy|floatformat:1 }}%</div>
+                {% if accuracy_improvement != 0 %}
+                <div class="stat-change {% if accuracy_improvement > 0 %}positive{% else %}negative{% endif %}">
+                    {% if accuracy_improvement > 0 %}↑{% else %}↓{% endif %} {{ accuracy_improvement }}% from first test
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Total Tests -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                <div class="stat-icon">📝</div>
+                <div class="stat-label">Total Tests</div>
+                <div class="stat-value">{{ score.total_tests }}</div>
+            </div>
+
+            <!-- Best WPM -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #EC4899, #DB2777);">
+                <div class="stat-icon">🚀</div>
+                <div class="stat-label">Best WPM</div>
+                <div class="stat-value">{{ score.best_wpm }}</div>
+            </div>
+
+            <!-- Best Accuracy -->
+            <div class="stat-card" style="--card-gradient: linear-gradient(135deg, #14B8A6, #0D9488);">
+                <div class="stat-icon">✨</div>
+                <div class="stat-label">Best Accuracy</div>
+                <div class="stat-value">{{ score.best_accuracy|floatformat:1 }}%</div>
+            </div>
+
+            <!-- Current Badge -->
+            <div class="stat-card badge-card" style="--card-gradient: linear-gradient(135deg, #8B5CF6, #EC4899); grid-column: span 2;
+                {% if score.get_badge == 'MYTHIC FINGERS' %}--badge-bg: linear-gradient(135deg, #8B5CF6, #EC4899); --badge-glow: rgba(139, 92, 246, 0.5);
+                {% elif score.get_badge == 'DIAMOND' %}--badge-bg: linear-gradient(135deg, #3B82F6, #06B6D4); --badge-glow: rgba(59, 130, 246, 0.5);
+                {% elif score.get_badge == 'GOLD' %}--badge-bg: linear-gradient(135deg, #F59E0B, #EF4444); --badge-glow: rgba(245, 158, 11, 0.5);
+                {% elif score.get_badge == 'SILVER' %}--badge-bg: linear-gradient(135deg, #6B7280, #9CA3AF); --badge-glow: rgba(107, 114, 128, 0.5);
+                {% elif score.get_badge == 'BRONZE' %}--badge-bg: linear-gradient(135deg, #92400E, #B45309); --badge-glow: rgba(146, 64, 14, 0.5);
+                {% else %}--badge-bg: linear-gradient(135deg, #4B5563, #6B7280); --badge-glow: rgba(75, 85, 99, 0.5);
+                {% endif %}">
+                <div class="badge-display">
+                    <div class="badge-icon-large">
+                        {% if score.get_badge == 'MYTHIC FINGERS' %}✋
+                        {% elif score.get_badge == 'DIAMOND' %}💎
+                        {% elif score.get_badge == 'GOLD' %}⭐
+                        {% elif score.get_badge == 'SILVER' %}▼
+                        {% elif score.get_badge == 'BRONZE' %}V
+                        {% else %}●{% endif %}
+                    </div>
+                    <div class="badge-info">
+                        <div class="badge-name">{{ score.get_badge }}</div>
+                        <div class="badge-desc">
+                            {% if score.get_badge == 'MYTHIC FINGERS' %}Legendary! You're among the elite!
+                            {% elif score.get_badge == 'DIAMOND' %}Outstanding performance!
+                            {% elif score.get_badge == 'GOLD' %}Great job! Keep it up!
+                            {% elif score.get_badge == 'SILVER' %}Good progress! Almost there!
+                            {% elif score.get_badge == 'BRONZE' %}Nice start! Keep practicing!
+                            {% else %}Welcome! Start your journey!
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Progress Chart -->
+            <div class="chart-card">
+                <h3>📈 Progress Over Time</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Accuracy & WPM Circles -->
+            <div class="chart-card">
+                <h3>📊 Current Performance</h3>
+                <div class="progress-circles">
+                    <div class="circle-item">
+                        <div class="circle-label">Accuracy</div>
+                        <div class="progress-ring">
+                            <svg width="120" height="120">
+                                <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                <circle class="progress" cx="60" cy="60" r="50" 
+                                    stroke="#10B981"
+                                    stroke-dasharray="314"
+                                    stroke-dashoffset="{{ 314|add:'-'|add:score.average_accuracy|floatformat:0|add:'*3.14/100'|default:'314' }}">
+                                </circle>
+                            </svg>
+                            <div class="value" style="color: #10B981;">{{ score.average_accuracy|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="improvement-grid">
+                        <div class="improvement-card">
+                            <div class="imp-label">WPM Improvement</div>
+                            <div class="imp-value {% if wpm_improvement >= 0 %}positive{% else %}negative{% endif %}">
+                                {% if wpm_improvement >= 0 %}+{% endif %}{{ wpm_improvement }}
+                            </div>
+                        </div>
+                        <div class="improvement-card">
+                            <div class="imp-label">Accuracy Change</div>
+                            <div class="imp-value {% if accuracy_improvement >= 0 %}positive{% else %}negative{% endif %}">
+                                {% if accuracy_improvement >= 0 %}+{% endif %}{{ accuracy_improvement }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Tests -->
+        <div class="recent-section">
+            <h3>🕐 Recent Tests</h3>
+            {% if recent_tests %}
+            <div class="test-list">
+                {% for test in recent_tests %}
+                <div class="test-item">
+                    <div class="test-date">{{ test.created_at|date:"d M, H:i" }}</div>
+                    <div class="test-stat">
+                        <div class="label">WPM</div>
+                        <div class="value">{{ test.wpm }}</div>
+                    </div>
+                    <div class="test-stat">
+                        <div class="label">Accuracy</div>
+                        <div class="value">{{ test.accuracy|floatformat:1 }}%</div>
+                    </div>
+                    <div class="test-stat">
+                        <div class="label">Duration</div>
+                        <div class="value">{{ test.time_taken_formatted }}</div>
+                    </div>
+                    <div class="test-marks">
+                        <div class="marks-value">{{ test.marks|floatformat:0 }}</div>
+                        <div class="marks-label">marks</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">
+                <p>No recent tests found.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% else %}
+        <!-- No Data State -->
+        <div class="no-data">
+            <div class="icon">🎮</div>
+            <h3>No Tests Yet!</h3>
+            <p>Start practicing to see your progress here.</p>
+            <a href="{% url 'taptap' %}" class="btn-start">Start Typing Test</a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script>
+    {% if score %}
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    
+    const labels = {{ chart_labels|safe }};
+    const wpmData = {{ chart_wpm|safe }};
+    const accuracyData = {{ chart_accuracy|safe }};
+    const marksData = {{ chart_marks|safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'WPM',
+                    data: wpmData,
+                    borderColor: '#60D5FF',
+                    backgroundColor: 'rgba(96, 213, 255, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#60D5FF',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                },
+                {
+                    label: 'Accuracy',
+                    data: accuracyData,
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                },
+                {
+                    label: 'Marks',
+                    data: marksData,
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 20,
+                        font: {
+                            family: 'Poppins',
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        family: 'Poppins',
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: 'Poppins',
+                        size: 12
+                    },
+                    padding: 12,
+                    cornerRadius: 10
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        font: {
+                            family: 'Poppins'
+                        }
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        font: {
+                            family: 'Poppins'
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    {% endif %}
+</script>
+
+{% endblock content %}

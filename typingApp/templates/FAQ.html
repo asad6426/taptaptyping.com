@@ -1,0 +1,155 @@
+{% extends "base2.html" %}
+{% block title %}Home Page{% endblock %}
+
+
+{% block content %}
+    <style>
+      body {
+        background-color: #f4f7fa;
+        color: #333;
+      }
+
+      .faq-container {
+        max-width: 600px;
+        margin: auto;
+        margin-top: 50px;
+      }
+      .faq-container h2 {
+        border-radius: 2rem;
+        height: 3rem;
+      }
+
+      .faq-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+      }
+
+      .faq-question {
+        font-weight: bold;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .faq-answer {
+        display: none;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 5px;
+        max-height: 0; /* Start collapsed */
+        overflow: hidden; /* Hide overflow */
+        transition: max-height 0.3s ease; /* Smooth transition */
+      }
+
+      /* Different colors for questions */
+      .faq-question:nth-child(1) {
+        color: text-red-500;
+      }
+      .faq-question:nth-child(2) {
+        background-color: #d4edda;
+        color: darkgreen;
+      }
+      .faq-question:nth-child(3) {
+        background-color: #cce5ff;
+        color: darkblue;
+      }
+
+      /* Different colors for answers */
+      .faq-answer:nth-child(1) {
+        background-color: #fbe9e7;
+        color: darkred;
+      }
+      .faq-answer:nth-child(2) {
+        background-color: #e8f5e9;
+        color: darkgreen;
+      }
+      .faq-answer:nth-child(3) {
+        background-color: #e3f2fd;
+        color: darkblue;
+      }
+    </style>
+  
+
+        <main class="flex-1 p-4">
+          <div class="faq-container">
+            <h2
+              class="text-3xl font-bold mb-4 bg-white text-center text-[#0D6073]"
+            >
+              Frequently Asked Questions
+            </h2>
+            <div class="faq-item">
+              <div
+                class="faq-question text-left bg-white"
+                onclick="toggleAnswer(this)"
+              >
+                What is TapTapTyping?
+              </div>
+              <div class="faq-answer">
+                TapTapTyping is an online typing tutor that helps you improve
+                your typing skills through various lessons and tests.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question bg-white" onclick="toggleAnswer(this)">
+                How can I improve my typing speed?
+              </div>
+              <div class="faq-answer">
+                To improve your typing speed, practice regularly, use typing
+                games, and focus on accuracy before speed.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question bg-white" onclick="toggleAnswer(this)">
+                Can I use TapTapTyping on mobile or tablet?
+              </div>
+              <div class="faq-answer">
+                Yes, TapTapTyping. com is completely responsive which means that it runs on Desktop, Tablet and Smartphone.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question bg-white" onclick="toggleAnswer(this)">
+                Is this safe for kids?
+              </div>
+              <div class="faq-answer">
+                Absolutely! TapTapTyping makes learning fun for all ages! There’s a kid-friendly option on our website with fun exercises and games for children.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question bg-white" onclick="toggleAnswer(this)">
+                Do you provide typing certificates?
+              </div>
+              <div class="faq-answer">
+                Yes! As a premium user, if you clear our advanced test series with qualifying accuracy and speed, you will receive a Typing Proficiency Certificate from us.
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+    <!-- Bootstrap JS (Popper and Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+    <!-- Dark Mode Toggle JavaScript -->
+    <script>
+      const darkModeToggle = document.getElementById("sidebarDarkModeToggle");
+      const darkModeSwitch = document.getElementById("sidebarToggleSwitch");
+
+      darkModeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("bg-dark", darkModeToggle.checked);
+        document.body.classList.toggle("text-light", darkModeToggle.checked);
+      });
+
+      function toggleAnswer(element) {
+        const answer = element.nextElementSibling;
+        if (answer.style.display === "block") {
+          answer.style.display = "none";
+          answer.style.maxHeight = "0";
+        } else {
+          answer.style.display = "block";
+          answer.style.maxHeight = answer.scrollHeight + "px";
+        }
+      }
+    </script>
+    
+{% endblock %}
