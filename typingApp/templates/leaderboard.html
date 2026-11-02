@@ -1445,13 +1445,34 @@
         padding: 6px 16px;
     }
 }
+    .ranking-info {
+        margin-top: 24px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #e2e8f0;
+    }
+
+    .ranking-info h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #ffffff;
+    }
+
+    .ranking-info ul {
+        padding-left: 20px;
+        line-height: 1.7;
+    }
+
 </style>
 
 <div class="leaderboard-body">
     <div class="container">
         <div class="header">
             <h1>GLOBAL LEADERBOARD</h1>
-            <p>Top performers based on their total scores</p>
+            <p>Ranked by average marks over each typist's last {{ ranking_recent_tests }} counted tests</p>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1473,15 +1494,15 @@
                 </div>
                 <div class="badge-name">{{ second.get_badge }}</div>
                 <div class="username">{{ second.user.username|upper }}</div>
-                <div class="score">{{ second.total_score|floatformat:0 }}</div>
+                <div class="score">{{ second.rating|floatformat:1 }}</div>
                 <div class="stats">
                     <div class="stat">
                         <div class="stat-label">Avg WPM</div>
-                        <div class="stat-value">{{ second.average_wpm|floatformat:0 }}</div>
+                        <div class="stat-value">{{ second.ranked_wpm|floatformat:0 }}</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Avg Accuracy</div>
-                        <div class="stat-value">{{ second.average_accuracy|floatformat:1 }}%</div>
+                        <div class="stat-value">{{ second.ranked_accuracy|floatformat:1 }}%</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Tests</div>
@@ -1513,15 +1534,15 @@
                 </div>
                 <div class="badge-name">{{ first.get_badge }}</div>
                 <div class="username">{{ first.user.username|upper }}</div>
-                <div class="score">{{ first.total_score|floatformat:0 }}</div>
+                <div class="score">{{ first.rating|floatformat:1 }}</div>
                 <div class="stats">
                     <div class="stat">
                         <div class="stat-label">Avg WPM</div>
-                        <div class="stat-value">{{ first.average_wpm|floatformat:0 }}</div>
+                        <div class="stat-value">{{ first.ranked_wpm|floatformat:0 }}</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Avg Accuracy</div>
-                        <div class="stat-value">{{ first.average_accuracy|floatformat:1 }}%</div>
+                        <div class="stat-value">{{ first.ranked_accuracy|floatformat:1 }}%</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Tests</div>
@@ -1553,15 +1574,15 @@
                 </div>
                 <div class="badge-name">{{ third.get_badge }}</div>
                 <div class="username">{{ third.user.username|upper }}</div>
-                <div class="score">{{ third.total_score|floatformat:0 }}</div>
+                <div class="score">{{ third.rating|floatformat:1 }}</div>
                 <div class="stats">
                     <div class="stat">
                         <div class="stat-label">Avg WPM</div>
-                        <div class="stat-value">{{ third.average_wpm|floatformat:0 }}</div>
+                        <div class="stat-value">{{ third.ranked_wpm|floatformat:0 }}</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Avg Accuracy</div>
-                        <div class="stat-value">{{ third.average_accuracy|floatformat:1 }}%</div>
+                        <div class="stat-value">{{ third.ranked_accuracy|floatformat:1 }}%</div>
                     </div>
                     <div class="stat">
                         <div class="stat-label">Tests</div>
@@ -1673,16 +1694,27 @@
                     
                     <!-- Score Display -->
                     <div class="score-display">
-                        <div class="main-score">{{ item.score.total_score|floatformat:0 }}</div>
-                        <div class="sub-stats">{{ item.score.average_wpm|floatformat:0 }} WPM · {{ item.score.average_accuracy|floatformat:1 }}%</div>
+                        <div class="main-score">{{ item.score.rating|floatformat:1 }}</div>
+                        <div class="sub-stats">{{ item.score.ranked_wpm|floatformat:0 }} WPM · {{ item.score.ranked_accuracy|floatformat:1 }}%</div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
                 <div class="no-data">
-                    No scores yet. Be the first to practice! 🚀
+                    No ranked typists yet. Be the first to practice! 🚀
                 </div>
             {% endif %}
+        </div>
+
+        <div class="ranking-info">
+            <h2>How ranking works</h2>
+            <ul>
+                <li>Your score is the average of your marks in your last {{ ranking_recent_tests }} counted tests.</li>
+                <li>Each test is marked out of 100: 60% speed and 40% accuracy.</li>
+                <li>You need {{ ranking_min_tests }} counted tests to join the leaderboard.</li>
+                <li>A test counts if it lasts at least {{ ranking_min_seconds }} seconds and is no faster than {{ max_plausible_wpm }} WPM.</li>
+                <li>Badges are separate: they come from the total points you have earned across all your tests.</li>
+            </ul>
         </div>
     </div>
 </div>

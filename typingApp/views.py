@@ -1,5 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import JobPost, BlogPost, TypingTestResult, Score, Category
+from .scoring import (
+    MAX_PLAUSIBLE_WPM,
+    RANKING_MIN_SECONDS,
+    RANKING_MIN_TESTS,
+    RANKING_RECENT_TESTS,
+    is_plausible_result,
+)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -26,13 +33,12 @@ def dashboard_view(request):
         score = None
     
     rank = None
-    total_users = Score.objects.count()
-    if score:
-        all_scores = Score.objects.order_by('-total_score')
-        for i, s in enumerate(all_scores, start=1):
-            if s.user == user:
-                rank = i
-                break
+    ranked_scores = build_leaderboard()
+    total_users = len(ranked_scores)
+    for i, s in enumerate(ranked_scores, start=1):
+        if s.user_id == user.id:
+            rank = i
+            break
     
     recent_tests = TypingTestResult.objects.filter(user=user).order_by('-created_at')[:10]
     all_tests = TypingTestResult.objects.filter(user=user).order_by('created_at')
@@ -90,39 +96,76 @@ def public_user_count():
     return f"{count // 100 * 100:,}+"
 
 
+def build_leaderboard():
+    """Scores of ranked users, best first. Each is ranked on its average marks over
+    its last RANKING_RECENT_TESTS counted tests, so taking more tests alone cannot
+    raise a rank. Sets rating, ranked_wpm and ranked_accuracy on each Score."""
+    recent_tests = {}
+    results = TypingTestResult.objects.filter(
+        time_taken__gte=RANKING_MIN_SECONDS,
+        wpm__lte=MAX_PLAUSIBLE_WPM,
+        marks__isnull=False,
+        user__is_active=True,
+    ).order_by('-created_at').values('user_id', 'wpm', 'accuracy', 'marks', 'correct_entries', 'time_taken')
+
+    for result in results:
+        if not is_plausible_result(result['wpm'], result['correct_entries'], result['time_taken']):
+            continue
+        tests = recent_tests.setdefault(result['user_id'], [])
+        if len(tests) < RANKING_RECENT_TESTS:
+            tests.append(result)
+
+    eligible = {user_id: tests for user_id, tests in recent_tests.items() if len(tests) >= RANKING_MIN_TESTS}
+
+    ranked_scores = list(Score.objects.select_related('user').filter(user_id__in=eligible))
+    for score in ranked_scores:
+        tests = eligible[score.user_id]
+        score.rating = sum(float(t['marks']) for t in tests) / len(tests)
+        score.ranked_wpm = sum(t['wpm'] for t in tests) / len(tests)
+        score.ranked_accuracy = sum(float(t['accuracy']) for t in tests) / len(tests)
+
+    ranked_scores.sort(key=lambda score: (-score.rating, -score.ranked_wpm))
+    return ranked_scores
+
+
 def leaderboard(request):
-    """Get top scores and pass to template"""
-    all_scores = Score.objects.select_related('user').order_by('-total_score')
-    
-    top_3 = list(all_scores[:3])
+    """Get ranked scores and pass to template"""
+    ranked_scores = build_leaderboard()
+
+    top_3 = ranked_scores[:3]
     first = top_3[0] if len(top_3) > 0 else None
     second = top_3[1] if len(top_3) > 1 else None
     third = top_3[2] if len(top_3) > 2 else None
-    
+
     leaderboard = []
-    for rank, score in enumerate(all_scores, start=1):
+    for rank, score in enumerate(ranked_scores, start=1):
         leaderboard.append({
             'rank': rank,
             'score': score,
             'is_current_user': request.user.is_authenticated and score.user == request.user
         })
-    
-    current_user_rank = None
+
+    user_rank = None
     if request.user.is_authenticated:
         for item in leaderboard:
             if item['is_current_user']:
-                current_user_rank = item['rank']
+                user_rank = item['rank']
                 break
-    
+
     context = {
         'first': first,
         'second': second,
         'third': third,
         'leaderboard': leaderboard,
-        'current_user_rank': current_user_rank,
+        'user_rank': user_rank,
+        'total_users': len(ranked_scores),
         'public_user_count': public_user_count(),
+        'ranking_min_seconds': RANKING_MIN_SECONDS,
+        'ranking_min_tests': RANKING_MIN_TESTS,
+        'ranking_recent_tests': RANKING_RECENT_TESTS,
+        'max_plausible_wpm': MAX_PLAUSIBLE_WPM,
     }
-    
+
     return render(request, 'leaderboard.html', context)
 
 
@@ -132,7 +175,19 @@ def save_result(request):
     """Receive typing test data from JavaScript and save to database"""
     try:
         data = json.loads(request.body)
-        
+
+        try:
+            plausible = is_plausible_result(
+                float(data.get('wpm')),
+                float(data.get('correct_entries')),
+                float(data.get('time_taken')),
+            )
+        except (TypeError, ValueError):
+            return JsonResponse({'success': False, 'error': 'Invalid result data'}, status=400)
+
+        if not plausible:
+            return JsonResponse({'success': False, 'error': 'Implausible result rejected.'}, status=400)
+
         result = TypingTestResult.objects.create(
             user=request.user,
             test_duration=data.get('test_duration'),
