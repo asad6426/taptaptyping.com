@@ -1,34 +1,42 @@
 from django.contrib.sitemaps import Sitemap
-from .models import BlogPost
 
 
 class BlogPostSitemap(Sitemap):
-    """Sitemap for blog posts"""
+    """Sitemap for blog posts from blog app"""
     changefreq = "weekly"
     priority = 0.8
-    protocol = 'https'  # Change to 'http' if your site doesn't use HTTPS
-    
+    protocol = 'https'
+
     def items(self):
-        # Only include posts that are not marked as noindex
-        return BlogPost.objects.filter(noindex=False).order_by('-posted_date')
-    
-    def lastmod(self, obj):
-        return obj.updated_date
-    
+        try:
+            from blog.models import Post
+            return Post.objects.all().order_by('-created_at')
+        except Exception:
+            return []
+
     def location(self, obj):
-        return f'/blog/{obj.slug}/'
+        return f'/{obj.slug}/'
 
 
 class StaticViewSitemap(Sitemap):
-    """Sitemap for static pages"""
-    priority = 0.5
-    changefreq = 'monthly'
+    """Sitemap for static/important pages"""
+    changefreq = 'weekly'
     protocol = 'https'
-    
+
     def items(self):
-        return ['home', 'about', 'contact']  # Add your static page names
-    
+        return [
+            ('/', 1.0),
+            ('/taptap/', 0.9),
+            ('/typing-lessons/', 0.9),
+            ('/typingGames/', 0.8),
+            ('/blogs/', 0.8),
+            ('/jobs/', 0.7),
+            ('/FAQ/', 0.6),
+            ('/aboutus/', 0.5),
+        ]
+
     def location(self, item):
-        if item == 'home':
-            return '/'
-        return f'/{item}/'
+        return item[0]
+
+    def priority(self, item):
+        return item[1]

@@ -160,105 +160,89 @@
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
+    overflow: hidden;
+    padding: 10px;
   }
 
-  /* Lesson states */
-  .lesson-circle.in-progress {
+  /* Lesson styles */
+  .lesson-circle.available {
     background: rgba(59, 130, 246, 0.25);
     border: 4px solid #60a5fa;
     box-shadow: 0 0 40px rgba(96, 165, 250, 0.6),
                 inset 0 0 30px rgba(59, 130, 246, 0.2);
   }
 
-  .lesson-circle.completed {
+  .lesson-circle.review-circle {
     background: rgba(251, 191, 36, 0.25);
     border: 4px solid #fbbf24;
     box-shadow: 0 0 40px rgba(251, 191, 36, 0.6),
                 inset 0 0 30px rgba(251, 191, 36, 0.2);
   }
 
-  .lesson-circle.fully-completed {
-    background: rgba(34, 197, 94, 0.25);
-    border: 4px solid #4ade80;
-    box-shadow: 0 0 40px rgba(74, 222, 128, 0.6),
-                inset 0 0 30px rgba(34, 197, 94, 0.2);
-  }
-
   .lesson-label {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
+    margin-bottom: 4px;
     opacity: 1;
     color: #e0e7ff;
+    text-align: center;
   }
 
   .lesson-keys {
-    font-size: 2.5rem;
+    font-size: 1.9rem;
     font-weight: 700;
-    letter-spacing: 8px;
-    margin-bottom: 0.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 2px;
     color: #ffffff;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    text-align: center;
+    line-height: 1.1;
   }
 
   .lesson-progress {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-    font-size: 1rem;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 0.78rem;
     font-weight: 500;
     color: #f0f9ff;
-  }
-
-  .progress-percent {
-    font-weight: 700;
-    color: #ffffff;
   }
 
   .time-estimate {
     color: #cbd5e1;
   }
 
-  .lesson-button {
-    margin-top: 1rem;
-    padding: 0.75rem 2rem;
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50px;
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  .lesson-circle-link {
+    display: block;
+    text-decoration: none;
+    border-radius: 50%;
   }
-
-  .lesson-button:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.6);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  .lesson-circle-link:hover .lesson-circle {
+    transform: scale(1.06);
+    filter: brightness(1.15);
   }
 
   /* Review nodes - special styling */
   .review-circle {
     width: 200px;
     height: 200px;
+    overflow: hidden;
+    padding: 12px;
   }
 
   .review-circle .lesson-keys {
-    font-size: 2rem;
-    letter-spacing: 6px;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    word-break: break-all;
+    text-align: center;
+    line-height: 1.3;
   }
 
-  .review-circle.fully-completed .checkmark {
-    font-size: 3rem;
-    color: #4ade80;
-    text-shadow: 0 0 20px rgba(74, 222, 128, 0.8);
+  .review-circle .lesson-label {
+    font-size: 0.7rem;
   }
 
   /* Positioning for lessons with gaps only between major sections */
@@ -298,9 +282,22 @@
       height: 140px;
     }
 
+    .lesson-circle-link {
+      width: 140px;
+      height: 140px;
+    }
+
     .lesson-keys {
-      font-size: 2rem;
-      letter-spacing: 6px;
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+    }
+
+    .lesson-label {
+      font-size: 0.65rem;
+    }
+
+    .lesson-progress {
+      font-size: 0.72rem;
     }
 
     .review-circle {
@@ -351,7 +348,7 @@
     }
   }
 
-  .lesson-circle.in-progress {
+  .lesson-circle.available {
     animation: glow 2s infinite;
   }
 </style>
@@ -369,7 +366,7 @@
   <!-- Lesson Path -->
   <div class="lesson-path">
     <!-- SVG Path Lines - Connected design within sections, gaps between sections -->
-    <svg class="path-lines" viewBox="0 0 1200 2400" preserveAspectRatio="xMidYMid meet">
+    <svg class="path-lines" viewBox="0 0 1200 2500" preserveAspectRatio="none">
       <!-- HOME ROW SECTION - 3 nodes on top connected, 2 on bottom, then review -->
       <path class="path-line" d="M 150 190 L 450 190" />
       <path class="path-line" d="M 450 190 L 1050 190" />
@@ -400,10 +397,6 @@
       <path class="path-line" d="M 300 2050 L 600 2290" />
       <path class="path-line" d="M 900 2050 L 600 2290" />
     </svg>
-      <path class="path-line" d="M 120 2010 L 600 2250" />
-      <path class="path-line" d="M 440 2010 L 600 2250" />
-      <path class="path-line" d="M 1000 2010 L 600 2250" />
-    </svg>
 
     <!-- ==================== HOME ROW SECTION ==================== -->
     
@@ -414,91 +407,77 @@
     
     <!-- Lesson 1: F J -->
     <div class="lesson-node node-fj">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'FJ' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 1</div>
         <div class="lesson-keys">F J</div>
         <div class="lesson-progress">
-          <span class="progress-percent">45%</span>
           <span class="time-estimate">1 min</span>
         </div>
       </div>
-      <a href="{% url 'FJ' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 2: G H -->
     <div class="lesson-node node-gh">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'GH' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 2</div>
         <div class="lesson-keys">G H</div>
         <div class="lesson-progress">
-          <span class="progress-percent">30%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-      <a href="{% url 'GH' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 3: D K -->
     <div class="lesson-node node-dk">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'DK' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 3</div>
         <div class="lesson-keys">D K</div>
         <div class="lesson-progress">
-          <span class="progress-percent">65%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-       <a href="{% url 'DK' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 4: S L -->
     <div class="lesson-node node-sl">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'SL' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 4</div>
         <div class="lesson-keys">S L</div>
         <div class="lesson-progress">
-          <span class="progress-percent">20%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-       <a href="{% url 'SL' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 5: A ; -->
     <div class="lesson-node node-asemi">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'A' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 5</div>
         <div class="lesson-keys">A ;</div>
         <div class="lesson-progress">
-          <span class="progress-percent">10%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-       <a href="{% url 'A' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- HOME ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-homerow">
-      <div class="lesson-circle review-circle completed">
+      <a href="{% url 'homeRowPractice' %}" class="lesson-circle-link">
+      <div class="lesson-circle review-circle">
         <div class="lesson-label">Home Row Review</div>
         <div class="lesson-keys" style="font-size: 1.8rem; letter-spacing: 4px;">ASDFGHJKL;</div>
-        <div class="lesson-progress">
-          <span class="progress-percent">100% Completed</span>
-        </div>
       </div>
-       <a href="{% url 'homeRowPractice' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Section Gap Between Home Row and Top Row -->
@@ -515,91 +494,77 @@
     
     <!-- Lesson 6: R U -->
     <div class="lesson-node node-ru">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'RU' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 6</div>
         <div class="lesson-keys">R U</div>
         <div class="lesson-progress">
-          <span class="progress-percent">50%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-       <a href="{% url 'RU' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 7: T Y -->
     <div class="lesson-node node-ty">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'TY' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 7</div>
         <div class="lesson-keys">T Y</div>
         <div class="lesson-progress">
-          <span class="progress-percent">35%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-      <a href="{% url 'TY' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 8: E I -->
     <div class="lesson-node node-ei">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'EI' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 8</div>
         <div class="lesson-keys">E I</div>
         <div class="lesson-progress">
-          <span class="progress-percent">40%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-      <a href="{% url 'EI' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 9: W O -->
     <div class="lesson-node node-wo">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'WO' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 9</div>
         <div class="lesson-keys">W O</div>
         <div class="lesson-progress">
-          <span class="progress-percent">25%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-      <a href="{% url 'WO' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Lesson 10: Q P -->
     <div class="lesson-node node-qp">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'QP' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 10</div>
         <div class="lesson-keys">Q P</div>
         <div class="lesson-progress">
-          <span class="progress-percent">15%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-      <a href="{% url 'QP' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- TOP ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-toprow">
-      <div class="lesson-circle review-circle completed">
+      <a href="{% url 'topRowPractice' %}" class="lesson-circle-link">
+      <div class="lesson-circle review-circle">
         <div class="lesson-label">Top Row Review</div>
         <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px;">QWERTYUIOP</div>
-        <div class="lesson-progress">
-          <span class="progress-percent">100% Completed</span>
-        </div>
       </div>
-      <a href="{% url 'topRowPractice' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- Section Gap Between Top Row and Bottom Row -->
@@ -614,94 +579,79 @@
       <h2>BOTTOM ROW</h2>
     </div>
     
-    <!-- Lesson 11: Z X -->
+    <!-- Lesson 11: V N -->
     <div class="lesson-node node-zx">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'VN' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 11</div>
         <div class="lesson-keys">V N</div>
         <div class="lesson-progress">
-          <span class="progress-percent">35%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-      <a href="{% url 'VN' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
-    <!-- Lesson 12: C V -->
+    <!-- Lesson 12: B / -->
     <div class="lesson-node node-cv">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'BB' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 12</div>
         <div class="lesson-keys">B /</div>
         <div class="lesson-progress">
-          <span class="progress-percent">20%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-      <a href="{% url 'BB' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
-    <!-- Lesson 13: B N -->
+    <!-- Lesson 13: C M -->
     <div class="lesson-node node-bn">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'CM' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 13</div>
         <div class="lesson-keys">C M</div>
         <div class="lesson-progress">
-          <span class="progress-percent">45%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-      <a href="{% url 'CM' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
-    <!-- Lesson 14: M -->
+    <!-- Lesson 14: X , -->
     <div class="lesson-node node-m">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'X' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 14</div>
         <div class="lesson-keys">X ,</div>
         <div class="lesson-progress">
-          <span class="progress-percent">30%</span>
           <span class="time-estimate">2 min</span>
         </div>
       </div>
-      <a href="{% url 'X' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
-    <!-- Lesson 15: , . / -->
+    <!-- Lesson 15: Z . -->
     <div class="lesson-node node-comma">
-      <div class="lesson-circle in-progress">
+      <a href="{% url 'Z' %}" class="lesson-circle-link">
+      <div class="lesson-circle available">
         <div class="lesson-label">Lesson 15</div>
         <div class="lesson-keys"> Z . </div>
         <div class="lesson-progress">
-          <span class="progress-percent">10%</span>
           <span class="time-estimate">3 min</span>
         </div>
       </div>
-      <a href="{% url 'Z' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
 
     <!-- BOTTOM ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-bottomrow">
-      <div class="lesson-circle review-circle fully-completed">
+      <a href="{% url 'BottomRowPractce' %}" class="lesson-circle-link">
+      <div class="lesson-circle review-circle">
         <div class="lesson-label">Bottom Row Review</div>
-        <div class="checkmark">✓</div>
         <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px; margin-top: 0.5rem;">ZXCVBNM,./</div>
-        <div class="lesson-progress">
-          <span class="progress-percent">100% Completed</span>
-        </div>
       </div>
-      <a href="{% url 'BottomRowPractce' %}">
-  <button class="lesson-button">Start Lesson</button>
-</a>
+      </a>
     </div>
   </div>
 </div>
@@ -724,25 +674,639 @@
 
   createStars();
 
-  // Add click handlers to lesson buttons
-  document.querySelectorAll('.lesson-button').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const lessonNode = this.closest('.lesson-node');
-      const lessonLabel = lessonNode.querySelector('.lesson-label').textContent;
-      
-      // Add your navigation logic here
-    });
-  });
-
-  // Add click handlers to lesson circles
-  document.querySelectorAll('.lesson-circle').forEach(circle => {
-    circle.addEventListener('click', function() {
-      const lessonLabel = this.querySelector('.lesson-label').textContent;
-      console.log(`Clicked on ${lessonLabel}`);
-      // Add your navigation logic here
-    });
-  });
+  // Circles are now anchor tags — no JS navigation needed
 </script>
 
-{% endblock content %}
+<!-- ══════════════════════════════════════════════ -->
+<!--          ADVANCED PRACTICE SECTION            -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="advanced-section">
+  <div class="advanced-header">
+    <div class="advanced-icon">⚡</div>
+    <div>
+      <h2 class="advanced-title">Advanced Practice</h2>
+      <p class="advanced-subtitle">Pick your letters — we generate a custom typing exercise just for you</p>
+    </div>
+  </div>
+
+  <div class="letter-picker-card">
+    <div class="picker-label">
+      <span>🔤</span> Select letters to practice:
+      <button class="quick-btn" onclick="selectAll()">All</button>
+      <button class="quick-btn" onclick="selectNone()">None</button>
+      <button class="quick-btn" onclick="selectHomeRow()">Home Row</button>
+      <button class="quick-btn" onclick="selectTopRow()">Top Row</button>
+      <button class="quick-btn" onclick="selectBottomRow()">Bottom Row</button>
+    </div>
+    <div class="letter-grid" id="letterGrid"></div>
+    <div class="gen-options">
+      <div class="opt-group">
+        <label>Words</label>
+        <select id="wordCount">
+          <option value="20">20</option>
+          <option value="40" selected>40</option>
+          <option value="60">60</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>Style</label>
+        <select id="textStyle">
+          <option value="words">Random Words</option>
+          <option value="sentences" selected>Sentences</option>
+        </select>
+      </div>
+      <button class="generate-btn" onclick="generateText()">⚡ Generate & Practice</button>
+    </div>
+    <p id="pickerError" style="color:#ef4444;font-size:0.85rem;margin-top:8px;display:none;">⚠️ Please select at least 2 letters!</p>
+  </div>
+
+  <!-- 🎹 Keyboard Finger Guide — Always Visible -->
+  <div class="kb-guide" id="kbGuide">
+    <div class="kb-finger-info" id="kbFingerInfo">
+      <!-- Left Hand -->
+      <div id="leftHandWrap" style="text-align:center;">
+        <div style="font-size:0.65rem;color:#94a3b8;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Left Hand</div>
+        <div class="kb-hand-wrap" id="leftHandEl">
+          <div class="kb-finger f-pinky"  id="lf-lp"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-ring"   id="lf-lr"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-middle" id="lf-lm"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-index"  id="lf-li"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-thumb"  id="lf-th" style="margin-left:4px;"><div class="kb-finger-seg"></div></div>
+        </div>
+        <div class="kb-finger-palm" id="leftPalm"></div>
+      </div>
+      <!-- Label in center -->
+      <span class="kb-finger-label" id="kbFingerLabel">🎹 Generate text to start</span>
+      <!-- Right Hand -->
+      <div id="rightHandWrap" style="text-align:center;">
+        <div style="font-size:0.65rem;color:#94a3b8;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Right Hand</div>
+        <div class="kb-hand-wrap" id="rightHandEl">
+          <div class="kb-finger f-thumb"  id="rf-th" style="margin-right:4px;"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-index"  id="rf-ri"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-middle" id="rf-rm"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-ring"   id="rf-rr"><div class="kb-finger-seg"></div></div>
+          <div class="kb-finger f-pinky"  id="rf-rp"><div class="kb-finger-seg"></div></div>
+        </div>
+        <div class="kb-finger-palm" id="rightPalm"></div>
+      </div>
+    </div>
+    <div class="kb-wrap">
+      <!-- Number row -->
+      <div class="kb-row">
+        <div class="kb-key" data-key="`" data-finger="lp">` </div>
+        <div class="kb-key" data-key="1" data-finger="lp">1</div>
+        <div class="kb-key" data-key="2" data-finger="lr">2</div>
+        <div class="kb-key" data-key="3" data-finger="lm">3</div>
+        <div class="kb-key" data-key="4" data-finger="li">4</div>
+        <div class="kb-key" data-key="5" data-finger="li">5</div>
+        <div class="kb-key" data-key="6" data-finger="ri">6</div>
+        <div class="kb-key" data-key="7" data-finger="ri">7</div>
+        <div class="kb-key" data-key="8" data-finger="rm">8</div>
+        <div class="kb-key" data-key="9" data-finger="rr">9</div>
+        <div class="kb-key" data-key="0" data-finger="rp">0</div>
+        <div class="kb-key kb-wide" data-key="backspace" data-finger="rp">⌫</div>
+      </div>
+      <!-- Top row -->
+      <div class="kb-row">
+        <div class="kb-key kb-tab" data-key="tab" data-finger="lp">Tab</div>
+        <div class="kb-key" data-key="q" data-finger="lp">Q</div>
+        <div class="kb-key" data-key="w" data-finger="lr">W</div>
+        <div class="kb-key" data-key="e" data-finger="lm">E</div>
+        <div class="kb-key" data-key="r" data-finger="li">R</div>
+        <div class="kb-key" data-key="t" data-finger="li">T</div>
+        <div class="kb-key" data-key="y" data-finger="ri">Y</div>
+        <div class="kb-key" data-key="u" data-finger="ri">U</div>
+        <div class="kb-key" data-key="i" data-finger="rm">I</div>
+        <div class="kb-key" data-key="o" data-finger="rr">O</div>
+        <div class="kb-key" data-key="p" data-finger="rp">P</div>
+      </div>
+      <!-- Home row -->
+      <div class="kb-row">
+        <div class="kb-key kb-caps" data-key="caps" data-finger="lp">Caps</div>
+        <div class="kb-key" data-key="a" data-finger="lp">A</div>
+        <div class="kb-key" data-key="s" data-finger="lr">S</div>
+        <div class="kb-key" data-key="d" data-finger="lm">D</div>
+        <div class="kb-key" data-key="f" data-finger="li">F</div>
+        <div class="kb-key" data-key="g" data-finger="li">G</div>
+        <div class="kb-key" data-key="h" data-finger="ri">H</div>
+        <div class="kb-key" data-key="j" data-finger="ri">J</div>
+        <div class="kb-key" data-key="k" data-finger="rm">K</div>
+        <div class="kb-key" data-key="l" data-finger="rr">L</div>
+        <div class="kb-key" data-key=";" data-finger="rp">;</div>
+      </div>
+      <!-- Bottom row -->
+      <div class="kb-row">
+        <div class="kb-key kb-shift" data-key="shift" data-finger="lp">Shift</div>
+        <div class="kb-key" data-key="z" data-finger="lp">Z</div>
+        <div class="kb-key" data-key="x" data-finger="lr">X</div>
+        <div class="kb-key" data-key="c" data-finger="lm">C</div>
+        <div class="kb-key" data-key="v" data-finger="li">V</div>
+        <div class="kb-key" data-key="b" data-finger="li">B</div>
+        <div class="kb-key" data-key="n" data-finger="ri">N</div>
+        <div class="kb-key" data-key="m" data-finger="ri">M</div>
+        <div class="kb-key" data-key="," data-finger="rm">,</div>
+        <div class="kb-key" data-key="." data-finger="rr">.</div>
+        <div class="kb-key" data-key="/" data-finger="rp">/</div>
+      </div>
+      <!-- Space row -->
+      <div class="kb-row">
+        <div class="kb-key kb-space" data-key=" " data-finger="th">SPACE</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="advTestArea" class="adv-test-area" style="display:none;">
+    <div class="adv-stats">
+      <div class="adv-stat"><div class="adv-stat-val" id="advTimer">0:00</div><div class="adv-stat-lbl">Time</div></div>
+      <div class="adv-stat"><div class="adv-stat-val" id="advWpm">0</div><div class="adv-stat-lbl">WPM</div></div>
+      <div class="adv-stat"><div class="adv-stat-val" id="advAcc">100%</div><div class="adv-stat-lbl">Accuracy</div></div>
+      <div class="adv-stat"><div class="adv-stat-val" id="advErrors">0</div><div class="adv-stat-lbl">Errors</div></div>
+    </div>
+    <div class="adv-instruction" id="advInstruction">👆 Click the text below and start typing!</div>
+    <div class="adv-text-display" id="advDisplay" tabindex="0"></div>
+    <div style="text-align:center;margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="adv-btn" onclick="resetAdvTest()">🔄 Reset</button>
+      <button class="adv-btn adv-btn-secondary" onclick="generateText()">⚡ New Text</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.advanced-section {
+  max-width: 900px; margin: 60px auto 60px; padding: 0 20px;
+  font-family: 'Outfit','Segoe UI',sans-serif;
+}
+.advanced-header { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.advanced-icon {
+  font-size:2.4rem; background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  width:60px; height:60px; border-radius:16px; display:flex; align-items:center;
+  justify-content:center; box-shadow:0 8px 24px rgba(99,102,241,0.4); flex-shrink:0;
+}
+.advanced-title {
+  font-size:1.8rem; font-weight:800; margin:0;
+  background:linear-gradient(135deg,#6366f1,#a78bfa);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.advanced-subtitle { color:#94a3b8; font-size:0.9rem; margin:4px 0 0; }
+.letter-picker-card {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px; padding:24px; backdrop-filter:blur(10px); margin-bottom:20px;
+}
+.picker-label {
+  font-size:0.95rem; font-weight:600; color:#e2e8f0; margin-bottom:14px;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.quick-btn {
+  padding:4px 12px; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4);
+  border-radius:20px; color:#a5b4fc; font-size:0.78rem; font-weight:600; cursor:pointer;
+  transition:all 0.2s;
+}
+.quick-btn:hover { background:rgba(99,102,241,0.4); color:#fff; }
+.letter-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.letter-chip {
+  width:42px; height:42px; border-radius:10px; border:2px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:1rem; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s; user-select:none;
+}
+.letter-chip:hover { border-color:#6366f1; color:#fff; }
+.letter-chip.selected {
+  background:linear-gradient(135deg,#6366f1,#8b5cf6); border-color:#6366f1;
+  color:#fff; box-shadow:0 4px 12px rgba(99,102,241,0.5); transform:scale(1.05);
+}
+.gen-options { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+.opt-group { display:flex; flex-direction:column; gap:5px; }
+.opt-group label { font-size:0.75rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.opt-group select {
+  padding:9px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.08); color:#e2e8f0; font-size:0.9rem;
+  font-family:inherit; cursor:pointer; outline:none;
+}
+.generate-btn {
+  padding:10px 24px; background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; border:none; border-radius:50px; font-weight:700; font-size:0.95rem;
+  cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(99,102,241,0.5);
+  transition:all 0.2s; align-self:flex-end;
+}
+.generate-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(99,102,241,0.6); }
+.adv-test-area {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px; padding:24px; backdrop-filter:blur(10px);
+  animation:fadeInUp 0.5s ease;
+}
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.adv-stats { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
+.adv-stat {
+  background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:12px;
+  padding:12px 20px; text-align:center; min-width:80px;
+  box-shadow:0 4px 12px rgba(99,102,241,0.3);
+}
+.adv-stat-val { font-size:1.5rem; font-weight:800; color:#fff; line-height:1; }
+.adv-stat-lbl { font-size:0.7rem; color:rgba(255,255,255,0.75); font-weight:500; margin-top:4px; text-transform:uppercase; }
+.adv-instruction {
+  text-align:center; background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; border-radius:10px; padding:11px; font-weight:500; font-size:0.9rem; margin-bottom:16px;
+}
+.adv-text-display {
+  background:rgba(15,23,42,0.7); border:2px solid rgba(99,102,241,0.3);
+  border-radius:14px; padding:22px; font-size:1.3rem; line-height:2.2;
+  min-height:100px; max-height:260px; overflow-y:auto; cursor:text;
+  outline:none; letter-spacing:1px; transition:border-color 0.2s;
+}
+.adv-text-display:focus { border-color:#6366f1; }
+.adv-text-display .achar { color:#64748b; }
+.adv-text-display .achar.a-correct { color:#10b981; }
+.adv-text-display .achar.a-incorrect { color:#ef4444; background:rgba(239,68,68,0.15); border-radius:3px; }
+.adv-text-display .achar.a-current { color:#a5b4fc; border-bottom:3px solid #6366f1; animation:advBlink 1s infinite; }
+@keyframes advBlink { 0%,100%{border-color:#6366f1} 50%{border-color:transparent} }
+.adv-btn {
+  padding:10px 26px; background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; border:none; border-radius:50px; font-weight:700; font-size:0.9rem;
+  cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(99,102,241,0.4); transition:all 0.2s;
+}
+.adv-btn:hover { transform:translateY(-2px); }
+.adv-btn-secondary { background:rgba(99,102,241,0.15); border:2px solid rgba(99,102,241,0.4); color:#a5b4fc; box-shadow:none; }
+.adv-btn-secondary:hover { background:rgba(99,102,241,0.3); color:#fff; }
+@media(max-width:600px){
+  .advanced-section{padding:0 12px;}
+  .adv-text-display{font-size:1.05rem;padding:14px;}
+  .letter-chip{width:34px;height:34px;font-size:0.85rem;}
+}
+
+/* ── Keyboard Guide ── */
+.kb-guide {
+  background: rgba(10,15,30,0.85);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 16px;
+  padding: 16px 12px 12px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+}
+.kb-finger-info {
+  text-align: center;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.kb-hand-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.kb-finger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.kb-finger-seg {
+  width: 18px;
+  border-radius: 9px 9px 0 0;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.15);
+  transition: all 0.25s ease;
+}
+/* Finger segment heights */
+.f-thumb  .kb-finger-seg { width:22px; border-radius:11px 11px 0 0; }
+.f-index  .kb-finger-seg { height:52px; }
+.f-middle .kb-finger-seg { height:60px; }
+.f-ring   .kb-finger-seg { height:52px; }
+.f-pinky  .kb-finger-seg { height:40px; }
+.f-thumb  .kb-finger-seg { height:32px; border-radius:11px; }
+.kb-finger-palm {
+  width: 110px; height: 40px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 0 0 14px 14px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top: none;
+  transition: background 0.25s;
+}
+/* Active finger glow */
+.kb-finger.active .kb-finger-seg {
+  animation: fingerPress 0.6s ease infinite alternate;
+}
+@keyframes fingerPress {
+  from { transform: translateY(0); }
+  to   { transform: translateY(6px); }
+}
+/* Finger color classes */
+.col-lp .kb-finger-seg { background:#1d4ed8; border-color:#3b82f6; }
+.col-lr .kb-finger-seg { background:#16a34a; border-color:#22c55e; }
+.col-lm .kb-finger-seg { background:#ca8a04; border-color:#eab308; }
+.col-li .kb-finger-seg { background:#7c3aed; border-color:#a78bfa; }
+.col-ri .kb-finger-seg { background:#dc2626; border-color:#f87171; }
+.col-rm .kb-finger-seg { background:#059669; border-color:#34d399; }
+.col-rr .kb-finger-seg { background:#ea580c; border-color:#fb923c; }
+.col-rp .kb-finger-seg { background:#a21caf; border-color:#e879f9; }
+.col-th .kb-finger-seg { background:#475569; border-color:#94a3b8; }
+.col-lp .kb-finger-palm { background:rgba(29,78,216,0.3); border-color:#3b82f6; }
+.col-lr .kb-finger-palm { background:rgba(22,163,74,0.3);  border-color:#22c55e; }
+.col-lm .kb-finger-palm { background:rgba(202,138,4,0.3);  border-color:#eab308; }
+.col-li .kb-finger-palm { background:rgba(124,58,237,0.3); border-color:#a78bfa; }
+.col-ri .kb-finger-palm { background:rgba(220,38,38,0.3);  border-color:#f87171; }
+.col-rm .kb-finger-palm { background:rgba(5,150,105,0.3);  border-color:#34d399; }
+.col-rr .kb-finger-palm { background:rgba(234,88,12,0.3);  border-color:#fb923c; }
+.col-rp .kb-finger-palm { background:rgba(162,28,175,0.3); border-color:#e879f9; }
+.col-th .kb-finger-palm { background:rgba(71,85,105,0.3);  border-color:#94a3b8; }
+
+.kb-finger-label {
+  font-size: 0.95rem; font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.5px;
+  text-align: center;
+  min-width: 160px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.kb-wrap { display:flex; flex-direction:column; gap:5px; align-items:center; }
+.kb-row { display:flex; gap:5px; }
+.kb-key {
+  width: 38px; height: 38px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; font-weight: 700;
+  cursor: default; user-select: none;
+  transition: all 0.15s ease;
+  position: relative;
+  border-bottom: 3px solid rgba(0,0,0,0.4);
+}
+.kb-wide  { width: 60px; }
+.kb-tab   { width: 58px; font-size: 0.7rem; }
+.kb-caps  { width: 62px; font-size: 0.7rem; }
+.kb-shift { width: 80px; font-size: 0.7rem; }
+.kb-space { width: 260px; font-size: 0.75rem; }
+
+/* Finger colors */
+.kb-key[data-finger="lp"] { background:#1e3a5f; color:#93c5fd; border-color:#1e40af; }
+.kb-key[data-finger="lr"] { background:#1e4a2e; color:#86efac; border-color:#166534; }
+.kb-key[data-finger="lm"] { background:#4a3000; color:#fcd34d; border-color:#92400e; }
+.kb-key[data-finger="li"] { background:#3b1f5e; color:#c4b5fd; border-color:#6d28d9; }
+.kb-key[data-finger="ri"] { background:#4a1a1a; color:#fca5a5; border-color:#991b1b; }
+.kb-key[data-finger="rm"] { background:#004040; color:#6ee7b7; border-color:#065f46; }
+.kb-key[data-finger="rr"] { background:#3d1f00; color:#fdba74; border-color:#92400e; }
+.kb-key[data-finger="rp"] { background:#2d1b4e; color:#e879f9; border-color:#7e22ce; }
+.kb-key[data-finger="th"] { background:#1f2937; color:#94a3b8; border-color:#374151; }
+
+/* Active (next key to press) */
+.kb-key.kb-active {
+  transform: scale(1.25) translateY(-4px);
+  z-index: 10;
+  border-bottom-width: 5px;
+  animation: kbPulse 0.8s ease infinite;
+}
+.kb-key[data-finger="lp"].kb-active { background:#1d4ed8; color:#fff; border-color:#3b82f6; box-shadow:0 0 18px rgba(59,130,246,0.8); }
+.kb-key[data-finger="lr"].kb-active { background:#16a34a; color:#fff; border-color:#22c55e; box-shadow:0 0 18px rgba(34,197,94,0.8); }
+.kb-key[data-finger="lm"].kb-active { background:#ca8a04; color:#fff; border-color:#eab308; box-shadow:0 0 18px rgba(234,179,8,0.8); }
+.kb-key[data-finger="li"].kb-active { background:#7c3aed; color:#fff; border-color:#a78bfa; box-shadow:0 0 18px rgba(139,92,246,0.8); }
+.kb-key[data-finger="ri"].kb-active { background:#dc2626; color:#fff; border-color:#f87171; box-shadow:0 0 18px rgba(239,68,68,0.8); }
+.kb-key[data-finger="rm"].kb-active { background:#059669; color:#fff; border-color:#34d399; box-shadow:0 0 18px rgba(16,185,129,0.8); }
+.kb-key[data-finger="rr"].kb-active { background:#ea580c; color:#fff; border-color:#fb923c; box-shadow:0 0 18px rgba(249,115,22,0.8); }
+.kb-key[data-finger="rp"].kb-active { background:#a21caf; color:#fff; border-color:#e879f9; box-shadow:0 0 18px rgba(168,85,247,0.8); }
+.kb-key[data-finger="th"].kb-active  { background:#475569; color:#fff; border-color:#94a3b8; box-shadow:0 0 18px rgba(148,163,184,0.6); }
+
+.kb-key.kb-pressed {
+  transform: scale(0.88) translateY(3px);
+  border-bottom-width: 1px;
+  transition: transform 0.08s ease;
+}
+@keyframes kbPulse {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.7; }
+}
+@media(max-width:600px){
+  .kb-key { width:28px; height:28px; font-size:0.65rem; }
+  .kb-space { width:180px; }
+  .kb-wide,.kb-tab,.kb-caps,.kb-shift { width:auto; min-width:42px; font-size:0.6rem; }
+}
+</style>
+
+<script>
+// ── Advanced Practice Engine ──
+const ADV_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+let selectedLetters = new Set();
+
+(function buildGrid() {
+  const grid = document.getElementById('letterGrid');
+  ADV_LETTERS.forEach(letter => {
+    const chip = document.createElement('div');
+    chip.className = 'letter-chip';
+    chip.textContent = letter;
+    chip.dataset.letter = letter.toLowerCase();
+    chip.onclick = () => toggleLetter(chip, letter.toLowerCase());
+    grid.appendChild(chip);
+  });
+})();
+
+function toggleLetter(chip, letter) {
+  if (selectedLetters.has(letter)) { selectedLetters.delete(letter); chip.classList.remove('selected'); }
+  else { selectedLetters.add(letter); chip.classList.add('selected'); }
+}
+function selectAll() {
+  document.querySelectorAll('.letter-chip').forEach(c => { c.classList.add('selected'); selectedLetters.add(c.dataset.letter); });
+}
+function selectNone() {
+  document.querySelectorAll('.letter-chip').forEach(c => c.classList.remove('selected'));
+  selectedLetters.clear();
+}
+function selectRow(letters) {
+  selectNone();
+  letters.toLowerCase().split('').forEach(l => {
+    const c = document.querySelector('.letter-chip[data-letter="'+l+'"]');
+    if (c) { c.classList.add('selected'); selectedLetters.add(l); }
+  });
+}
+function selectHomeRow()   { selectRow('asdfghjkl'); }
+function selectTopRow()    { selectRow('qwertyuiop'); }
+function selectBottomRow() { selectRow('zxcvbnm'); }
+
+function makeWord(letters, min, max) {
+  const len = min + Math.floor(Math.random() * (max - min + 1));
+  let w = '';
+  for (let i = 0; i < len; i++) w += letters[Math.floor(Math.random() * letters.length)];
+  return w;
+}
+function makeSentence(pool) {
+  const count = 5 + Math.floor(Math.random() * 5);
+  const words = [];
+  for (let i = 0; i < count; i++) words.push(pool[Math.floor(Math.random() * pool.length)]);
+  const s = words.join(' ');
+  return s.charAt(0).toUpperCase() + s.slice(1) + '.';
+}
+
+function generateText() {
+  if (selectedLetters.size < 2) { document.getElementById('pickerError').style.display='block'; return; }
+  document.getElementById('pickerError').style.display='none';
+  const letters = Array.from(selectedLetters);
+  const wordCount = parseInt(document.getElementById('wordCount').value);
+  const style = document.getElementById('textStyle').value;
+  const pool = [];
+  for (let i = 0; i < 80; i++) pool.push(makeWord(letters, 2, 6));
+  let text = '';
+  if (style === 'words') {
+    const words = [];
+    for (let i = 0; i < wordCount; i++) words.push(pool[Math.floor(Math.random() * pool.length)]);
+    text = words.join(' ');
+  } else {
+    const sents = []; let total = 0;
+    while (total < wordCount) {
+      const s = makeSentence(pool); sents.push(s);
+      total += s.split(' ').length;
+    }
+    text = sents.join(' ');
+  }
+  loadAdvTest(text);
+}
+
+// ── Typing Engine ──
+let advText='', advTyped='', advCorrect=0, advIncorrect=0;
+let advTimerInterval=null, advSeconds=0, advRunning=false;
+const advDisplay = document.getElementById('advDisplay');
+
+// ── Finger Guide Data ──
+const FINGER_INFO = {
+  'lp': { label: '← Left Pinky',   color: '#3b82f6', ids: ['lf-lp'], palmId: 'leftPalm',  colClass: 'col-lp' },
+  'lr': { label: '← Left Ring',    color: '#22c55e', ids: ['lf-lr'], palmId: 'leftPalm',  colClass: 'col-lr' },
+  'lm': { label: '← Left Middle',  color: '#eab308', ids: ['lf-lm'], palmId: 'leftPalm',  colClass: 'col-lm' },
+  'li': { label: '← Left Index',   color: '#a78bfa', ids: ['lf-li'], palmId: 'leftPalm',  colClass: 'col-li' },
+  'ri': { label: 'Right Index →',  color: '#f87171', ids: ['rf-ri'], palmId: 'rightPalm', colClass: 'col-ri' },
+  'rm': { label: 'Right Middle →', color: '#34d399', ids: ['rf-rm'], palmId: 'rightPalm', colClass: 'col-rm' },
+  'rr': { label: 'Right Ring →',   color: '#fb923c', ids: ['rf-rr'], palmId: 'rightPalm', colClass: 'col-rr' },
+  'rp': { label: 'Right Pinky →',  color: '#e879f9', ids: ['rf-rp'], palmId: 'rightPalm', colClass: 'col-rp' },
+  'th': { label: '⬆ Thumbs / Space', color: '#94a3b8', ids: ['lf-th','rf-th'], palmId: null, colClass: 'col-th' },
+};
+
+function updateFingerGuide(ch) {
+  const key = ch === ' ' ? ' ' : ch.toLowerCase();
+  const kbKey = document.querySelector(`.kb-key[data-key="${key}"]`);
+  // Clear all active states
+  document.querySelectorAll('.kb-key.kb-active').forEach(k => k.classList.remove('kb-active'));
+  document.querySelectorAll('.kb-finger.active').forEach(f => f.classList.remove('active'));
+  // Remove all color classes from palms and hands
+  const allCols = Object.values(FINGER_INFO).map(f=>f.colClass);
+  document.getElementById('leftPalm').className  = 'kb-finger-palm';
+  document.getElementById('rightPalm').className = 'kb-finger-palm';
+  [document.getElementById('leftHandEl'), document.getElementById('rightHandEl')].forEach(h=>{
+    allCols.forEach(c=>h.classList.remove(c));
+  });
+
+  if (!kbKey) {
+    document.getElementById('kbFingerLabel').textContent = '— spacebar / special —';
+    document.getElementById('kbFingerLabel').style.color = '#94a3b8';
+    return;
+  }
+  kbKey.classList.add('kb-active');
+  const fingerCode = kbKey.dataset.finger;
+  const info = FINGER_INFO[fingerCode];
+  if (!info) return;
+
+  // Highlight fingers
+  info.ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.add('active', info.colClass); }
+  });
+  // Color palm
+  if (info.palmId) {
+    document.getElementById(info.palmId).classList.add(info.colClass);
+  }
+  // Update label
+  const label = document.getElementById('kbFingerLabel');
+  label.textContent = `${info.label}  —  press "${ch === ' ' ? 'SPACE' : ch.toUpperCase()}"`;
+  label.style.color = info.color;
+
+  // Press animation on key
+  setTimeout(() => kbKey.classList.remove('kb-active'), 120);
+  setTimeout(() => kbKey.classList.add('kb-active'), 130);
+}
+
+function loadAdvTest(text) {
+  advText=text; advTyped=''; advCorrect=0; advIncorrect=0;
+  advSeconds=0; advRunning=false;
+  clearInterval(advTimerInterval);
+  advDisplay.innerHTML='';
+  advText.split('').forEach((ch,i)=>{
+    const s=document.createElement('span');
+    s.className='achar'+(i===0?' a-current':'');
+    s.textContent=ch;
+    advDisplay.appendChild(s);
+  });
+  document.getElementById('advTimer').textContent='0:00';
+  document.getElementById('advWpm').textContent='0';
+  document.getElementById('advAcc').textContent='100%';
+  document.getElementById('advErrors').textContent='0';
+  document.getElementById('advInstruction').textContent='👆 Click the text below and start typing!';
+  // Highlight first character on guide (already visible)
+  if(advText.length > 0) updateFingerGuide(advText[0]);
+  const area=document.getElementById('advTestArea');
+  area.style.display='block';
+  setTimeout(()=>area.scrollIntoView({behavior:'smooth',block:'center'}),100);
+  advDisplay.focus();
+}
+
+advDisplay.addEventListener('keydown', function(e){
+  if(e.key==='Backspace'){
+    e.preventDefault();
+    if(advTyped.length>0){ advTyped=advTyped.slice(0,-1); advUpdateDisplay(); }
+  }
+});
+advDisplay.addEventListener('keypress', function(e){
+  e.preventDefault();
+  if(e.key.length>1 && e.key!=='Enter' && e.key!==' ') return;
+  if(advTyped.length>=advText.length) return;
+  if(!advRunning){
+    advRunning=true;
+    document.getElementById('advInstruction').textContent='⌨️ Keep going! Great work!';
+    advTimerInterval=setInterval(()=>{
+      advSeconds++;
+      const m=Math.floor(advSeconds/60), s=advSeconds%60;
+      document.getElementById('advTimer').textContent=m+':'+(s<10?'0'+s:s);
+      advUpdateStats();
+    },1000);
+  }
+  advTyped += (e.key==='Enter'?'\n':e.key);
+  advUpdateDisplay(); advUpdateStats();
+  if(advTyped.length>=advText.length){
+    clearInterval(advTimerInterval);
+    document.getElementById('advInstruction').textContent='🎉 Excellent! Practice complete!';
+  }
+});
+
+function advUpdateDisplay(){
+  const spans=advDisplay.querySelectorAll('.achar');
+  advCorrect=0; advIncorrect=0;
+  spans.forEach((span,i)=>{
+    span.classList.remove('a-correct','a-incorrect','a-current');
+    if(i<advTyped.length){
+      if(advTyped[i]===advText[i]){span.classList.add('a-correct');advCorrect++;}
+      else{span.classList.add('a-incorrect');advIncorrect++;}
+    } else if(i===advTyped.length) span.classList.add('a-current');
+  });
+  const cur=advDisplay.querySelector('.a-current');
+  if(cur) cur.scrollIntoView({block:'nearest'});
+  // Update finger guide for next char
+  const nextIdx = advTyped.length;
+  if(nextIdx < advText.length) {
+    updateFingerGuide(advText[nextIdx]);
+  } else {
+    // Finished — clear guide
+    document.querySelectorAll('.kb-key.kb-active').forEach(k=>k.classList.remove('kb-active'));
+    document.querySelectorAll('.kb-finger.active').forEach(f=>f.classList.remove('active'));
+    document.getElementById('kbFingerLabel').textContent = '🎉 Complete! Well done!';
+    document.getElementById('kbFingerLabel').style.color = '#4ade80';
+  }
+}
+function advUpdateStats(){
+  document.getElementById('advErrors').textContent=advIncorrect;
+  if(advSeconds>0) document.getElementById('advWpm').textContent=Math.round((advCorrect/5)/(advSeconds/60));
+  const tot=advCorrect+advIncorrect;
+  document.getElementById('advAcc').textContent=(tot>0?((advCorrect/tot)*100).toFixed(1):100)+'%';
+}
+function resetAdvTest(){ if(advText) loadAdvTest(advText); }
+</script>
+
+{% endblock content %}

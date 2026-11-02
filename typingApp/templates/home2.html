@@ -1,5 +1,8 @@
 {% extends "base2.html" %}
-{% block title %}Home Page{% endblock %}
+{% block title %}TapTapTyping - Free Online Typing Speed Test & Practice{% endblock %}
+{% block meta_description %}Test and improve your typing speed for free! TapTapTyping offers WPM typing tests, touch typing lessons, and typing games. Join 150M+ test takers today.{% endblock %}
+{% block og_title %}TapTapTyping - Free Typing Speed Test{% endblock %}
+{% block og_description %}Measure your typing speed in WPM, practice with lessons, and improve accuracy. 100% free.{% endblock %}
 
 {% block content %}
 <style>
@@ -58,7 +61,7 @@
 
 <main class="main-content">
     <h2 class="header-title">Check your typing skills in a minute</h2>
-    <p class="header-subtitle">Type away to join 150+ million test takers!</p>
+    <p class="header-subtitle">{% if public_user_count %}Type away to join {{ public_user_count }} registered users!{% else %}Take a free typing test and see your speed and accuracy.{% endif %}</p>
 
     <form id="testForm" action="{% url 'taptap' %}" method="GET">
         

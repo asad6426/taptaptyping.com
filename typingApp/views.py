@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import JobPost, BlogPost, TypingTestResult, Score, Category
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -72,6 +74,22 @@ def dashboard_view(request):
     return render(request, 'dashboard.html', context)
 
 
+PUBLIC_USER_COUNT_MIN = 1000
+
+
+def public_user_count():
+    """Registered-user count for public display, rounded down to the nearest 100.
+    Returns None until the site reaches PUBLIC_USER_COUNT_MIN users."""
+    count = cache.get_or_set(
+        'public_user_count',
+        lambda: get_user_model().objects.filter(is_active=True).count(),
+        3600,
+    )
+    if count < PUBLIC_USER_COUNT_MIN:
+        return None
+    return f"{count // 100 * 100:,}+"
+
+
 def leaderboard(request):
     """Get top scores and pass to template"""
     all_scores = Score.objects.select_related('user').order_by('-total_score')
@@ -102,6 +120,7 @@ def leaderboard(request):
         'third': third,
         'leaderboard': leaderboard,
         'current_user_rank': current_user_rank,
+        'public_user_count': public_user_count(),
     }
     
     return render(request, 'leaderboard.html', context)
@@ -200,7 +219,7 @@ def save_result(request):
 # ============================================
 
 def start_test(request):
-    return render(request, 'home2.html')
+    return render(request, 'home2.html', {'public_user_count': public_user_count()})
 
 def taptap(request):
     if request.method == 'GET':
@@ -375,7 +394,8 @@ def FAQ(request):
     return render(request, 'FAQ.html')
 
 def typingGame(request):
-    return render(request, 'typingGame.html')
+    """Old in-house game page — redirects to the dedicated games subdomain."""
+    return redirect('https://game.taptaptyping.com/')
 
 def policy(request):
     return render(request, 'policy.html')
@@ -413,7 +433,7 @@ def JobpostForm(request):
             return redirect('jobs')
     else:
         form = JobPostForm()
-    return render(request, 'jobPostform.html', {'form': form})
+    return render(request, 'jobPostform.html', {'form': form, 'public_user_count': public_user_count()})
 
 
 # ============================================
@@ -438,20 +458,24 @@ def blog_list(request):
 
 
 def blog_detail(request, slug):
-    """Display single blog post with SEO optimization"""
-    post = get_object_or_404(BlogPost, slug=slug)
+    """Display single blog post - reads from SEO blog editor"""
+    from blog.models import BlogPost as SEOBlogPost
+    post = get_object_or_404(SEOBlogPost, slug=slug, published=True)
+    related_posts = SEOBlogPost.objects.filter(published=True).exclude(id=post.id).order_by('-created_at')[:3]
     
-    # Increment view count
-    post.increment_views()
+    # Build site URL for OG tags
+    site_url = request.build_absolute_uri('/').rstrip('/')
+    post_url = request.build_absolute_uri()
     
-    # Get related posts
-    related_posts = BlogPost.objects.filter(
-        noindex=False
-    ).exclude(id=post.id).order_by('-posted_date')[:3]
+    # Get tags as list
+    tags_list = [t.strip() for t in post.tags.split(',') if t.strip()] if post.tags else []
     
     context = {
         'post': post,
         'related_posts': related_posts,
+        'site_url': site_url,
+        'post_url': post_url,
+        'tags_list': tags_list,
     }
     return render(request, 'blog_detail.html', context)
 
@@ -482,9 +506,10 @@ def category_posts(request, slug):
 # ============================================
 
 def blogs(request):
-    """Old blog list view"""
-    blogposts = BlogPost.objects.all()
-    return render(request, "blogsPost.html", {'blogposts': blogposts})
+    """Public blog list - shows published posts from the SEO blog editor"""
+    from blog.models import BlogPost as SEOBlogPost
+    blogposts = SEOBlogPost.objects.filter(published=True).order_by('-created_at')
+    return render(request, "blogs.html", {'blogposts': blogposts})
 
 def blog_details(request, pk):
     """Old blog detail view by ID"""

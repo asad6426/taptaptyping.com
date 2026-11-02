@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from .views import *
 
 urlpatterns = [
@@ -54,7 +55,8 @@ urlpatterns = [
     path('aboutus/', aboutus, name='aboutus'),
     path('policy/', policy, name='policy'),
     path('typingGames/', typingGame, name='typingGame'),
-    path('typingLession/', typingLession, name='typingLession'),
+    path('typing-lessons/', typingLession, name='typingLession'),
+    path('typingLession/', RedirectView.as_view(url='/typing-lessons/', permanent=True, query_string=True)),
     
     # ==========================================
     # JOB POSTS

@@ -1,28 +1,63 @@
 """
 URL configuration for TapTapTyping project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
-from django.conf.urls.static import static
+from django.contrib.sitemaps import Sitemap
+from django.contrib.sitemaps.views import sitemap
+from django.http import HttpResponse
 from accounts import views
 
+
+# ── Inline Sitemaps ──────────────────────────────────────────
+class StaticViewSitemap(Sitemap):
+    changefreq = 'weekly'
+    protocol = 'https'
+
+    def items(self):
+        return [
+            ('/', 1.0),
+            ('/taptap/', 0.9),
+            ('/typing-lessons/', 0.9),
+            ('/typingGames/', 0.8),
+            ('/blogs/', 0.8),
+            ('/jobs/', 0.7),
+            ('/FAQ/', 0.6),
+            ('/aboutus/', 0.5),
+        ]
+
+    def location(self, item):
+        return item[0]
+
+    def priority(self, item):
+        return item[1]
+
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
+
+
+# ── robots.txt ───────────────────────────────────────────────
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /login/",
+        "Disallow: /signup/",
+        "Disallow: /dashboard/",
+        "Disallow: /typing/save/",
+        "",
+        "Sitemap: https://taptaptyping.com/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+# ── URL Patterns ─────────────────────────────────────────────
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
     path('tinymce/', include('tinymce.urls')),
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),
@@ -30,8 +65,18 @@ urlpatterns = [
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
     path('reset-password/<uidb64>/<token>/', views.reset_password_view, name='reset_password'),
     path('blog/', include('blog.urls')),
+    path('jobpost/', include('jobpost.urls')),
+    path('certificate/', include('certificate.urls')),
+    path('accounts/', include('allauth.urls')),     # Google OAuth URLs
+    # SEO
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', robots_txt, name='robots_txt'),
     path('', include('typingApp.urls')),
-    
 ]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+from django.views.static import serve as _serve_static
+from django.urls import re_path as _re_path
+# static() helper itself no-ops when DEBUG=False, so wire django.views.static.serve directly
+urlpatterns += [
+    _re_path(r'^media/(?P<path>.*)$', _serve_static, {'document_root': settings.MEDIA_ROOT}),
+]
