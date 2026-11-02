@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.sitemaps.views import sitemap
 from django.http import HttpResponse
 from accounts import views
-from typingApp.Sitemaps import BlogPostSitemap, JobPostSitemap, LessonSitemap, StaticViewSitemap
+from typingApp.Sitemaps import BlogPostSitemap, JobPostSitemap, LessonSitemap, StaticViewSitemap, TypingTestSitemap
 
 
 sitemaps = {
@@ -15,6 +15,7 @@ sitemaps = {
     'lessons': LessonSitemap,
     'blog': BlogPostSitemap,
     'jobs': JobPostSitemap,
+    'typing_test': TypingTestSitemap,
 }
 
 

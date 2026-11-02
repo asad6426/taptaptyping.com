@@ -3,7 +3,8 @@ from django.middleware.csrf import get_token
 from django.shortcuts import render
 
 from .account_views import SCORING_VERSION
-from .content import CONTENT_REVIEWED, CONTENT_STATUS, CONTENT_VERSION, STARTER_PARAGRAPHS, STARTER_WORDS
+from .competition import FIXED_DURATIONS
+from .content_store import content_for, is_language_reviewed
 from .models import UserPreference
 from .languages import (
     CUSTOM_DURATION_MAX,
@@ -27,6 +28,8 @@ def get_language(code):
 def render_test(request, language, *, mode, h1, title, description, seconds=60, duration=None):
     is_main_page = mode == 'time' and duration is None
     get_token(request)  # Saving a result needs the CSRF cookie
+    content = content_for(language.code)
+    reviewed = is_language_reviewed(language.code)
     server_preferences = {}
     if request.user.is_authenticated:
         preference = UserPreference.objects.filter(user=request.user).first()
@@ -58,7 +61,7 @@ def render_test(request, language, *, mode, h1, title, description, seconds=60, 
         'word_counts': WORD_COUNTS if language.word_boundary == 'spaces' else UNIT_COUNTS,
         'unit_name': 'Words' if language.word_boundary == 'spaces' else 'Characters',
         'practice_direction': 'ltr' if mode == 'numbers' else language.direction,
-        'content_reviewed': CONTENT_REVIEWED,
+        'content_reviewed': reviewed,
         'config': {
             'language': language.code,
             'locale': language.locale,
@@ -66,15 +69,16 @@ def render_test(request, language, *, mode, h1, title, description, seconds=60, 
             'mode': mode,
             'durationSec': seconds,
             'wordBoundary': language.word_boundary,
-            'words': STARTER_WORDS[language.code],
-            'paragraphs': STARTER_PARAGRAPHS[language.code],
+            'words': content['words'],
+            'paragraphs': content['paragraph'],
+            'rankedDurations': sorted(FIXED_DURATIONS),
             'comma': language.comma,
             'end': language.end,
             'cased': language.cased,
             'customMin': CUSTOM_DURATION_MIN,
             'customMax': CUSTOM_DURATION_MAX,
-            'contentVersion': CONTENT_VERSION,
-            'contentStatus': CONTENT_STATUS,
+            'contentVersion': content['version'],
+            'contentStatus': 'approved' if reviewed else 'unreviewed',
             'digits': language.digits,
             'scoringVersion': SCORING_VERSION,
             'signedIn': request.user.is_authenticated,
@@ -82,7 +86,7 @@ def render_test(request, language, *, mode, h1, title, description, seconds=60, 
         },
     })
     # Stay out of search results until native speakers have reviewed the text
-    if not CONTENT_REVIEWED:
+    if not reviewed:
         response['X-Robots-Tag'] = 'noindex'
     return response
 

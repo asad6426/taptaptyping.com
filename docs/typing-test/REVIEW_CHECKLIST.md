@@ -18,8 +18,14 @@
 - [ ] Arabic and Urdu: rendering, caret position and mixed-direction text.
 - [ ] Confirm cluster boundaries in `typingtest/fixtures_scoring.json` with native speakers.
 
+## Before leaderboards are promoted
+
+- [ ] Review flagged results in the admin regularly.
+- [ ] Decide whether the 180 WPM and 120 WPM with 99.5% flag limits suit each language. They were chosen without real data.
+- [ ] Decide whether a cookie consent tool is needed. See PRIVACY.md.
+- [ ] Test on Safari, Firefox and real phones, with a screen reader.
+
 ## Before launch
 
-- [ ] Choose the server-side grapheme algorithm for validation.
-- [ ] Decide the mobile and assisted-input leaderboard policy.
+- [ ] Confirm the mobile and assisted-input policy: they have separate boards today, based on what the browser reports.
 - [ ] Review the FAQ and page text on each language page.

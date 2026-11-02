@@ -85,6 +85,25 @@ class JobPostSitemap(SiteSitemap):
         return job.updated_date
 
 
+class TypingTestSitemap(SiteSitemap):
+    """Pages of languages whose content has been approved"""
+    changefreq = 'weekly'
+    priority = 0.7
+
+    def items(self):
+        from typingtest.content_store import reviewed_languages
+        from typingtest.languages import DURATIONS
+        paths = ['/typing-test/leaderboard'] if reviewed_languages() else []
+        for language in reviewed_languages():
+            paths.append(language.path)
+            paths += [f'{language.path}/{slug}' for slug, _, _ in DURATIONS]
+            paths += [f'{language.path}/{mode}' for mode in ('words', 'paragraph', 'custom-text', 'numbers')]
+        return paths
+
+    def location(self, path):
+        return path
+
+
 class GamesSitemap(SiteSitemap):
     """The games hub and every game, for game.taptaptyping.com"""
     domain = 'game.taptaptyping.com'

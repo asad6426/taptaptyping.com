@@ -1,0 +1,71 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block title %}Typing Test Leaderboards | TapTapTyping{% endblock %}
+{% block meta_description %}See the top validated typing test results for each language, test length and input type, with the competition rules.{% endblock %}
+{% block canonical %}<link rel="canonical" href="https://taptaptyping.com/typing-test/leaderboard">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'typingtest/typing.css' %}">{% endblock %}
+
+{% block content %}
+<main class="tt-page">
+  <h1>Typing Test Leaderboards</h1>
+  <p class="tt-intro">Each board only compares results from the same language, test and input type.</p>
+
+  <form method="get" class="tt-filters">
+    <label>Language
+      <select name="language">{% for item in languages %}<option value="{{ item.code }}"{% if item.code == selected.language %} selected{% endif %}>{{ item.name }}</option>{% endfor %}</select>
+    </label>
+    <label>Mode
+      <select name="mode">{% for key, label in modes %}<option value="{{ key }}"{% if key == selected.mode %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    {% if show_duration %}
+    <label>Duration
+      <select name="duration">{% for key, label in durations %}<option value="{{ key }}"{% if key == selected.duration %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    {% endif %}
+    {% if show_size %}
+    <label>Length or type
+      <select name="size">{% for key, label in sizes %}<option value="{{ key }}"{% if key == selected.size %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    {% endif %}
+    {% if show_difficulty %}
+    <label>Difficulty
+      <select name="difficulty">{% for key, label in difficulties %}<option value="{{ key }}"{% if key == selected.difficulty %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    {% endif %}
+    <label>Input type
+      <select name="category">{% for key, label in categories %}<option value="{{ key }}"{% if key == selected.category %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>Period
+      <select name="period">{% for key, label in periods %}<option value="{{ key }}"{% if key == selected.period %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <button type="submit" class="tt-button">Show</button>
+  </form>
+
+  <h2>{{ language_name }} results</h2>
+  {% if rows %}
+    <div class="tt-table-wrap">
+      <table class="tt-table">
+        <thead><tr><th scope="col">Rank</th><th scope="col">Name</th><th scope="col">WPM (5 units)</th><th scope="col">CPM</th><th scope="col">Accuracy</th><th scope="col">Date</th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+            <tr><td>{{ row.rank }}</td><td>{{ row.name }}</td><td>{{ row.wpm }}</td><td>{{ row.cpm }}</td><td>{{ row.accuracy }}%</td><td>{{ row.date|date:"j M Y" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No validated results for this board yet. <a href="/{{ selected.language }}-typing-test">Take a {{ language_name }} test</a> while signed in to be the first.</p>
+  {% endif %}
+
+  <h2>Competition Rules</h2>
+  <ul>
+    <li>You must be signed in, and each person appears once on a board with their best result.</li>
+    <li>The site supplies the practice text and measures the time, and it calculates your score from what you typed.</li>
+    <li>Results count only with the standard settings: fixed test lengths, corrections allowed, and no added punctuation, numbers or capitals.</li>
+    <li>Tests must last at least {{ min_seconds }} seconds with at least 20 correct units. Custom text and pasted input never count.</li>
+    <li>Speeds above 250 WPM are rejected, and unusually fast results stay hidden until a person reviews them.</li>
+    <li>Desktop keyboards, input methods (IME) and mobile keyboards have separate boards.</li>
+  </ul>
+  <p class="tt-note">WPM here means correct units per minute divided by five. It is best compared within one language. These checks make cheating harder but cannot detect every automated tool, so results may be removed after review.</p>
+</main>
+{% endblock %}

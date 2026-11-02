@@ -6,9 +6,7 @@ checked by native speakers. They must be reviewed before they are presented as
 reviewed content. See docs/typing-test/REVIEW_CHECKLIST.md.
 """
 
-CONTENT_STATUS = 'unreviewed'
-CONTENT_REVIEWED = False
-CONTENT_VERSION = 'starter-1'
+SOURCE = 'AI-drafted starter content, original to TapTapTyping. Not native-reviewed.'
 
 STARTER_WORDS = {
     'english': 'the people time water house school friend morning light small great often every little between work learn write read follow'.split(),

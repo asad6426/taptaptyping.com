@@ -44,6 +44,6 @@ These settings lock once a test starts and can change again after a restart.
 
 ## Known limits
 
-- **Different browsers may split clusters differently.** `Intl.Segmenter` depends on the ICU version, most visibly for Indic conjuncts such as `क्ष`. Stage 6 needs one fixed algorithm on the server before any result can be ranked.
-- **Results are local.** Nothing here is sent to a server, so none of it is protection against cheating yet.
+- **Browser and server can differ slightly.** The browser uses `Intl.Segmenter`, whose result depends on the ICU version. Ranked scores use `typingtest/scoring.py`, a fixed algorithm: a base character with its marks, Indic consonants joined by a virama, and Thai and Lao sara am. The official number can differ a little from what the browser showed.
+- **Ranked elapsed time** comes from the server's clock, so it includes a little network delay.
 - **Cluster boundaries in the fixtures** were checked against Node 22 and still need native review.

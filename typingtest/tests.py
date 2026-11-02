@@ -1,17 +1,27 @@
 import json
 import re
 from datetime import timedelta
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.utils import timezone
 
+from TapTapTyping import middleware
 from blog.models import BlogPost
 
-from .content import CONTENT_STATUS, STARTER_PARAGRAPHS, STARTER_WORDS
+from .content import STARTER_PARAGRAPHS, STARTER_WORDS
+from .content_store import content_for, is_language_reviewed
 from .account_views import practice_streak
 from .languages import DURATIONS, LANGUAGES
-from .models import TestResult, UserPreference
+from .models import ContentItem, ContentReport, TestResult, TestSession, UserPreference
+from .scoring import score_typed_text, split_units
+
+
+def tearDownModule():
+    # These tests send enough requests to reach the site-wide limit per IP
+    middleware._request_counts.clear()
+    middleware._blocked_until.clear()
 
 
 class LanguagePageTests(TestCase):
@@ -102,7 +112,7 @@ class LanguagePageTests(TestCase):
         self.assertEqual({language.code for language in LANGUAGES}, set(STARTER_PARAGRAPHS))
         for code, sentences in STARTER_PARAGRAPHS.items():
             self.assertEqual(len(sentences), 4, code)
-        self.assertEqual(CONTENT_STATUS, 'unreviewed')
+        self.assertFalse(ContentItem.objects.exclude(review_status=ContentItem.UNREVIEWED).exists())
         config = self.client.get('/bengali-typing-test/paragraph').context['config']
         self.assertEqual(config['contentStatus'], 'unreviewed')
 
@@ -307,3 +317,340 @@ class DeleteAccountTests(TestCase):
         self.client.post('/typing-test/account/delete', {'confirm_username': 'boss'})
         self.assertTrue(get_user_model().objects.filter(username='boss').exists())
         self.assertNotContains(self.client.get('/typing-test/progress'), 'Delete my account')
+
+
+class ServerUnitTests(TestCase):
+    def test_units_match_the_shared_fixtures(self):
+        fixtures = json.loads((Path(__file__).parent / 'fixtures_scoring.json').read_text(encoding='utf-8'))
+        for language, item in fixtures['languages'].items():
+            self.assertEqual(split_units(''.join(item['units'])), item['units'], language)
+
+    def test_scoring(self):
+        self.assertEqual(score_typed_text('abc', 'axc'), {'correct': 2, 'incorrect': 1, 'typed': 3, 'target': 3})
+        self.assertEqual(score_typed_text('tiếng', 'tie')['incorrect'], 0)
+        self.assertEqual(score_typed_text('क्ष', 'क')['incorrect'], 0)
+        self.assertEqual(score_typed_text('école', 'ec')['incorrect'], 1)
+        self.assertEqual(score_typed_text('ab', 'abcd')['incorrect'], 2)
+        self.assertEqual(score_typed_text('মি', 'মা')['incorrect'], 1)
+
+    def test_composed_and_decomposed_text_compare_equal(self):
+        self.assertEqual(score_typed_text('é', 'é')['correct'], 1)
+
+
+class RankedSessionTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user('typist', password='x')
+        self.client.force_login(self.user)
+
+    def api(self, url, body):
+        return self.client.post(url, json.dumps(body), content_type='application/json')
+
+    def session(self, language='english', mode='words', **fields):
+        fields.setdefault('textSize', '50')
+        fields.setdefault('difficulty', 'intermediate')
+        response = self.api('/typing-test/api/sessions', {'language': language, 'mode': mode, **fields})
+        self.assertEqual(response.status_code, 200, response.content)
+        return response.json()
+
+    def started(self, seconds_ago=60, **fields):
+        data = self.session(**fields)
+        self.assertEqual(self.client.post(f"/typing-test/api/sessions/{data['token']}/start").status_code, 200)
+        TestSession.objects.filter(token=data['token']).update(started_at=timezone.now() - timedelta(seconds=seconds_ago))
+        return data
+
+    def submit(self, data, typed=None, **overrides):
+        typed = data['target'] if typed is None else typed
+        units = split_units(typed)
+        body = dict(payload(language='english', mode='words', durationSec=None, textSize='50'))
+        body.update(sessionToken=data['token'], typedText=typed, attempts=len(units), correctUnits=len(units),
+                    elapsedSec=30, accuracy=100, inputCategory='desktop', pasteAttempted=False)
+        body.update(overrides)
+        return self.api('/typing-test/api/results', body)
+
+    def test_guests_get_no_session(self):
+        response = Client().post('/typing-test/api/sessions', json.dumps({'language': 'english', 'mode': 'words', 'textSize': '50'}), content_type='application/json')
+        self.assertEqual(response.status_code, 401)
+
+    def test_unranked_setups_get_no_session(self):
+        for body in ({'language': 'english', 'mode': 'custom'}, {'language': 'nope', 'mode': 'words', 'textSize': '50'},
+                     {'language': 'english', 'mode': 'words', 'textSize': '37', 'difficulty': 'intermediate'},
+                     {'language': 'english', 'mode': 'time', 'durationSec': 75, 'difficulty': 'intermediate'},
+                     {'language': 'english', 'mode': 'numbers', 'textSize': 'whole-native'}):
+            self.assertEqual(self.api('/typing-test/api/sessions', body).status_code, 400, body)
+
+    def test_valid_result_is_ranked_and_scored_by_the_server(self):
+        data = self.started()
+        response = self.submit(data, correctUnits=1, wpm=9999, cpm=9999).json()
+        self.assertTrue(response['ranked'])
+        result = TestResult.objects.get()
+        self.assertEqual(result.correct_units, len(split_units(data['target'])))
+        self.assertAlmostEqual(result.wpm, result.correct_units / 5, delta=2)
+
+    def test_wrong_text_scores_lower_whatever_the_browser_claims(self):
+        data = self.started()
+        self.submit(data, typed='x' * len(split_units(data['target'])), correctUnits=500, accuracy=100)
+        result = TestResult.objects.get()
+        self.assertEqual(result.correct_units, 0)
+        self.assertFalse(result.is_ranked)
+
+    def test_session_works_only_once(self):
+        data = self.started()
+        self.assertEqual(self.submit(data).status_code, 200)
+        self.assertEqual(self.submit(data).status_code, 400)
+        self.assertEqual(TestResult.objects.count(), 1)
+
+    def test_another_users_session_is_refused(self):
+        data = self.started()
+        other = get_user_model().objects.create_user('other', password='x')
+        self.client.force_login(other)
+        self.assertEqual(self.submit(data).status_code, 400)
+        self.assertEqual(self.client.post(f"/typing-test/api/sessions/{data['token']}/start").status_code, 404)
+
+    def test_not_started_or_too_fast_is_refused(self):
+        self.assertEqual(self.submit(self.session()).status_code, 400)
+        self.assertEqual(self.submit(self.started(seconds_ago=20), elapsedSec=30).status_code, 400)
+        fast = self.started(seconds_ago=20)
+        self.assertEqual(self.submit(fast, elapsedSec=20).status_code, 400 if len(split_units(fast['target'])) / 5 / (20 / 60) > 250 else 200)
+
+    def test_impossible_speed_on_the_server_clock_is_refused(self):
+        data = self.started(seconds_ago=1, textSize='200')
+        self.assertEqual(self.submit(data, elapsedSec=1).status_code, 400)
+        self.assertFalse(TestResult.objects.exists())
+
+    def test_fast_results_are_flagged_and_hidden(self):
+        data = self.started(seconds_ago=15, textSize='50')
+        units = len(split_units(data['target']))
+        seconds = units / 5 / 200 * 60
+        TestSession.objects.filter(token=data['token']).update(started_at=timezone.now() - timedelta(seconds=seconds))
+        response = self.submit(data, elapsedSec=seconds).json()
+        result = TestResult.objects.get()
+        if seconds >= 15:
+            self.assertEqual(result.review_status, TestResult.FLAGGED)
+            self.assertTrue(response['underReview'])
+        self.assertEqual(self.client.get('/typing-test/leaderboard?size=50&mode=words').context['rows'], [])
+
+    def test_practice_only_reasons(self):
+        cases = (({'pasteAttempted': True}, 'Paste'), ({'inputCategory': 'robot'}, 'input type'))
+        for overrides, reason in cases:
+            response = self.submit(self.started(), **overrides).json()
+            self.assertFalse(response['ranked'])
+            self.assertIn(reason, response['reason'])
+        response = self.submit(self.started(), typed='the').json()
+        self.assertFalse(response['ranked'])
+        self.assertFalse(TestResult.objects.filter(is_ranked=True).exists())
+
+    def test_timed_test_must_run_its_full_time(self):
+        data = self.started(seconds_ago=30, mode='time', durationSec=60, textSize='')
+        typed = ''.join(split_units(data['target'])[:100])
+        response = self.submit(data, typed=typed, durationSec=60, mode='time', textSize='', elapsedSec=30).json()
+        self.assertFalse(response['ranked'])
+        data = self.started(seconds_ago=61, mode='time', durationSec=60, textSize='')
+        typed = ''.join(split_units(data['target'])[:100])
+        response = self.submit(data, typed=typed, durationSec=60, mode='time', textSize='', elapsedSec=60).json()
+        self.assertTrue(response['ranked'])
+        self.assertEqual(TestResult.objects.filter(is_ranked=True).get().elapsed_sec, 60)
+
+    def test_results_without_a_session_are_never_ranked(self):
+        self.api('/typing-test/api/results', payload(is_ranked=True, ranked=True))
+        self.assertFalse(TestResult.objects.get().is_ranked)
+
+    def test_session_rate_limit(self):
+        for _ in range(30):
+            self.session()
+        response = self.api('/typing-test/api/sessions', {'language': 'english', 'mode': 'words', 'textSize': '50', 'difficulty': 'intermediate'})
+        self.assertEqual(response.status_code, 429)
+
+    def test_every_language_and_mode_can_start_a_session(self):
+        TestSession.objects.all().delete()
+        for language in LANGUAGES:
+            counts = '50' if language.word_boundary == 'spaces' else '100'
+            bodies = [
+                {'mode': 'time', 'durationSec': 60, 'difficulty': 'beginner'},
+                {'mode': 'words', 'textSize': counts, 'difficulty': 'advanced'},
+                {'mode': 'paragraph', 'textSize': 'long'},
+                {'mode': 'numbers', 'textSize': 'mixed-western'},
+            ]
+            for body in bodies:
+                TestSession.objects.all().delete()
+                response = self.api('/typing-test/api/sessions', {'language': language.code, **body})
+                self.assertEqual(response.status_code, 200, (language.code, body))
+                self.assertTrue(response.json()['target'])
+
+    def test_native_digit_session(self):
+        data = self.session(language='bengali', mode='numbers', textSize='whole-native')
+        self.assertRegex(data['target'], r'^[০-৯ ]+$')
+
+
+class LeaderboardTests(TestCase):
+    def add(self, username, wpm, display='', **fields):
+        user, _ = get_user_model().objects.get_or_create(username=username)
+        if display:
+            UserPreference.objects.update_or_create(user=user, defaults={'display_name': display})
+        defaults = dict(language='english', mode='time', duration_sec=60, difficulty='intermediate', input_category='desktop',
+                        is_ranked=True, correct_units=100, incorrect_units=0, corrections=0, attempts=100, elapsed_sec=60,
+                        accuracy=99, cpm=wpm * 5, wpm=wpm, scoring_version='1')
+        defaults.update(fields)
+        return TestResult.objects.create(user=user, **defaults)
+
+    def rows(self, query=''):
+        return self.client.get('/typing-test/leaderboard' + query).context['rows']
+
+    def test_empty_state(self):
+        response = self.client.get('/typing-test/leaderboard')
+        self.assertContains(response, 'No validated results for this board yet')
+        self.assertContains(response, 'Competition Rules')
+
+    def test_each_person_once_best_first(self):
+        self.add('a', 50)
+        self.add('a', 70)
+        self.add('b', 60)
+        self.assertEqual([(r['name'], r['wpm']) for r in self.rows()], [('a', 70), ('b', 60)])
+
+    def test_unranked_and_hidden_results_stay_off(self):
+        self.add('practice', 90, is_ranked=False)
+        self.add('flagged', 90, review_status=TestResult.FLAGGED)
+        self.add('rejected', 90, review_status=TestResult.REJECTED)
+        self.add('approved', 40, review_status=TestResult.APPROVED)
+        self.assertEqual([r['name'] for r in self.rows()], ['approved'])
+
+    def test_unlike_results_stay_apart(self):
+        self.add('en', 50)
+        self.add('bn', 50, language='bengali')
+        self.add('two', 50, duration_sec=120)
+        self.add('hard', 50, difficulty='advanced')
+        self.add('phone', 50, input_category='mobile')
+        self.add('ime', 50, input_category='ime')
+        self.add('words', 50, mode='words', duration_sec=None, text_size='50')
+        self.add('num', 50, mode='numbers', duration_sec=None, text_size='whole-western', difficulty='')
+        self.assertEqual([r['name'] for r in self.rows()], ['en'])
+        self.assertEqual([r['name'] for r in self.rows('?language=bengali')], ['bn'])
+        self.assertEqual([r['name'] for r in self.rows('?duration=120')], ['two'])
+        self.assertEqual([r['name'] for r in self.rows('?difficulty=advanced')], ['hard'])
+        self.assertEqual([r['name'] for r in self.rows('?category=mobile')], ['phone'])
+        self.assertEqual([r['name'] for r in self.rows('?category=ime')], ['ime'])
+        self.assertEqual([r['name'] for r in self.rows('?mode=words&size=50')], ['words'])
+        self.assertEqual([r['name'] for r in self.rows('?mode=numbers&size=whole-western')], ['num'])
+
+    def test_periods(self):
+        old = self.add('old', 90)
+        TestResult.objects.filter(pk=old.pk).update(created_at=timezone.now() - timedelta(days=3))
+        ancient = self.add('ancient', 99)
+        TestResult.objects.filter(pk=ancient.pk).update(created_at=timezone.now() - timedelta(days=30))
+        self.add('new', 50)
+        self.assertEqual([r['name'] for r in self.rows('?period=daily')], ['new'])
+        self.assertEqual([r['name'] for r in self.rows('?period=weekly')], ['old', 'new'])
+        self.assertEqual([r['name'] for r in self.rows()], ['ancient', 'old', 'new'])
+
+    def test_names_are_escaped_and_display_name_is_used(self):
+        self.add('plainname', 50, display='<script>alert(1)</script>')
+        response = self.client.get('/typing-test/leaderboard')
+        self.assertNotContains(response, '<script>alert(1)</script>')
+        self.assertContains(response, '&lt;script&gt;')
+        self.assertNotContains(response, 'plainname')
+
+    def test_bad_filters_fall_back_and_filter_pages_are_not_indexed(self):
+        response = self.client.get('/typing-test/leaderboard?language=<x>&mode=custom&duration=1&period=zzz')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['X-Robots-Tag'], 'noindex')
+        self.assertEqual(response.context['selected']['mode'], 'time')
+        self.assertNotIn('X-Robots-Tag', self.client.get('/typing-test/leaderboard'))
+
+
+class ContentReviewTests(TestCase):
+    def setUp(self):
+        self.staff = get_user_model().objects.create_superuser('boss', 'b@example.com', 'x')
+
+    def approve(self, code):
+        ContentItem.objects.filter(language=code).update(review_status=ContentItem.APPROVED)
+
+    def test_seed_content_is_loaded_and_unreviewed(self):
+        self.assertEqual(ContentItem.objects.count(), 40)
+        for language in LANGUAGES:
+            self.assertEqual(content_for(language.code)['words'], STARTER_WORDS[language.code])
+            self.assertEqual(content_for(language.code)['paragraph'], STARTER_PARAGRAPHS[language.code])
+            self.assertFalse(is_language_reviewed(language.code))
+        self.assertIn('Not native-reviewed', ContentItem.objects.first().source_or_license)
+
+    def test_approving_a_language_opens_it_to_search(self):
+        self.assertEqual(self.client.get('/bengali-typing-test')['X-Robots-Tag'], 'noindex')
+        self.assertNotIn('/bengali-typing-test<', self.client.get('/sitemap.xml').content.decode())
+        ContentItem.objects.filter(language='bengali', content_type=ContentItem.WORD_LIST).update(review_status=ContentItem.APPROVED)
+        self.assertFalse(is_language_reviewed('bengali'))
+        self.approve('bengali')
+        response = self.client.get('/bengali-typing-test')
+        self.assertNotIn('X-Robots-Tag', response)
+        self.assertNotContains(response, 'has not yet been reviewed')
+        sitemap = self.client.get('/sitemap.xml').content.decode()
+        self.assertIn('https://taptaptyping.com/bengali-typing-test/3-minutes<', sitemap)
+        self.assertNotIn('hindi-typing-test', sitemap)
+
+    def test_editing_approved_text_needs_review_again(self):
+        self.approve('hindi')
+        item = ContentItem.objects.filter(language='hindi', content_type=ContentItem.WORD_LIST).first()
+        self.client.force_login(self.staff)
+        response = self.client.post(f'/admin/typingtest/contentitem/{item.pk}/change/', {
+            'language': item.language, 'content_type': item.content_type, 'difficulty': '', 'text': item.text + ' नया',
+            'source_or_license': item.source_or_license, 'review_status': item.review_status,
+        })
+        self.assertEqual(response.status_code, 302)
+        item.refresh_from_db()
+        self.assertEqual((item.version, item.review_status), (2, ContentItem.UNREVIEWED))
+
+    def test_admin_action_records_the_reviewer(self):
+        self.client.force_login(self.staff)
+        item = ContentItem.objects.first()
+        self.client.post('/admin/typingtest/contentitem/', {'action': 'approve', '_selected_action': [item.pk]})
+        item.refresh_from_db()
+        self.assertEqual((item.review_status, item.reviewed_by), (ContentItem.APPROVED, self.staff))
+
+    def test_rejected_text_stops_showing(self):
+        ContentItem.objects.filter(language='french', content_type=ContentItem.PARAGRAPH).update(review_status=ContentItem.REJECTED)
+        self.assertEqual(content_for('french')['paragraph'], [])
+        self.assertFalse(is_language_reviewed('french'))
+
+    def test_review_page_is_staff_only(self):
+        self.assertEqual(self.client.get('/typing-test/review').status_code, 302)
+        user = get_user_model().objects.create_user('user', password='x')
+        self.client.force_login(user)
+        self.assertEqual(self.client.get('/typing-test/review').status_code, 403)
+        self.client.force_login(self.staff)
+        response = self.client.get('/typing-test/review')
+        self.assertEqual(len(response.context['rows']), 20)
+        self.assertEqual(response['X-Robots-Tag'], 'noindex')
+
+    def test_admin_pages_open(self):
+        self.client.force_login(self.staff)
+        for name in ('contentitem', 'contentreport', 'testresult', 'testsession', 'userpreference'):
+            self.assertEqual(self.client.get(f'/admin/typingtest/{name}/').status_code, 200, name)
+
+    def test_flagged_result_can_be_approved_in_admin(self):
+        user = get_user_model().objects.create_user('fast', password='x')
+        result = TestResult.objects.create(user=user, language='english', mode='time', duration_sec=60, difficulty='intermediate',
+                                           input_category='desktop', is_ranked=True, review_status=TestResult.FLAGGED, correct_units=1,
+                                           incorrect_units=0, corrections=0, attempts=1, elapsed_sec=60, accuracy=100, cpm=1, wpm=200, scoring_version='1')
+        self.client.force_login(self.staff)
+        self.client.post('/admin/typingtest/testresult/', {'action': 'approve_flagged', '_selected_action': [result.pk]})
+        result.refresh_from_db()
+        self.assertEqual(result.review_status, TestResult.APPROVED)
+
+
+class ReportTests(TestCase):
+    def post(self, **overrides):
+        body = {'language': 'bengali', 'mode': 'words', 'message': 'A word is misspelled', 'excerpt': 'আমি'}
+        body.update(overrides)
+        return self.client.post('/typing-test/api/report', json.dumps(body), content_type='application/json')
+
+    def test_guest_can_report(self):
+        self.assertEqual(self.post().status_code, 200)
+        self.assertEqual(ContentReport.objects.get().language, 'bengali')
+
+    def test_bad_reports_and_custom_text_are_refused(self):
+        self.assertEqual(self.post(message='   ').status_code, 400)
+        self.assertEqual(self.post(language='nope').status_code, 400)
+        self.assertEqual(self.post(mode='custom').status_code, 400)
+        self.assertNotContains(self.client.get('/english-typing-test/custom-text'), 'reportForm')
+
+    def test_rate_limit(self):
+        for _ in range(5):
+            self.assertEqual(self.post().status_code, 200)
+        self.assertEqual(self.post().status_code, 429)

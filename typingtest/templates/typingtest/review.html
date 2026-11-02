@@ -1,0 +1,33 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block title %}Content Review | TapTapTyping{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'typingtest/typing.css' %}">{% endblock %}
+
+{% block content %}
+<main class="tt-page">
+  <h1>Content Review</h1>
+  <p class="tt-intro">A language opens to search engines when all of its word lists and paragraphs are approved. Editing approved text sends it back for review.</p>
+
+  <ul class="tt-links">
+    <li><a href="/admin/typingtest/contentitem/">Word lists and paragraphs</a></li>
+    <li><a href="/admin/typingtest/contentreport/?resolved__exact=0">Reported text errors</a></li>
+    <li><a href="/admin/typingtest/testresult/?review_status__exact=flagged">Flagged results ({{ flagged }})</a></li>
+  </ul>
+
+  <h2>Languages</h2>
+  <div class="tt-table-wrap">
+    <table class="tt-table">
+      <thead><tr><th scope="col">Language</th><th scope="col">Approved</th><th scope="col">Unreviewed</th><th scope="col">Rejected</th><th scope="col">Open reports</th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td><a href="/admin/typingtest/contentitem/?language={{ row.code }}">{{ row.name }}</a></td>
+            <td>{{ row.approved }}</td><td>{{ row.unreviewed }}</td><td>{{ row.rejected }}</td><td>{{ row.open_reports }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="tt-note">Languages themselves are set in <code>typingtest/languages.py</code>, because routes and pages are generated from that list.</p>
+</main>
+{% endblock %}

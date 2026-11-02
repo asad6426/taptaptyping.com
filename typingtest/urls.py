@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views.generic import RedirectView
 
-from . import account_views, views
+from . import account_views, competition, views
 from .languages import DURATIONS, LANGUAGES
 
 app_name = 'typingtest'
@@ -26,6 +26,11 @@ def page_routes(route, view, kwargs, name):
 urlpatterns = [
     path('typing-test/api/results', account_views.save_result, name='save_result'),
     path('typing-test/api/preferences', account_views.save_preferences, name='save_preferences'),
+    path('typing-test/api/sessions', competition.create_session, name='create_session'),
+    path('typing-test/api/sessions/<str:token>/start', competition.start_session, name='start_session'),
+    path('typing-test/api/report', competition.report_text, name='report_text'),
+    path('typing-test/leaderboard', competition.leaderboard_page, name='leaderboard'),
+    path('typing-test/review', competition.review_page, name='review'),
     path('typing-test/progress', account_views.progress_page, name='progress'),
     path('typing-test/account/delete', account_views.delete_account, name='delete_account'),
 ]

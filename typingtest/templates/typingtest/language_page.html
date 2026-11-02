@@ -98,7 +98,7 @@
     <p class="tt-error" id="optionError" role="alert"></p>
   </div>
 
-  <div class="tt-practice tt-script-{{ language.script }}" id="practiceText" dir="{{ practice_direction }}" lang="{{ language.locale }}"></div>
+  <div class="tt-practice tt-script-{{ language.script }}" id="practiceText" dir="{{ practice_direction }}" lang="{{ language.locale }}" tabindex="0" role="group" aria-label="Practice text"></div>
 
   <label class="visually-hidden" for="typingInput">Type the practice text here</label>
   <textarea class="tt-input tt-script-{{ language.script }}" id="typingInput" dir="{{ practice_direction }}" lang="{{ language.locale }}"
@@ -174,17 +174,30 @@
       <div><dt>Duration</dt><dd id="resultDuration"></dd></div>
       <div><dt>Difficulty</dt><dd id="resultDifficulty"></dd></div>
       <div><dt>Personal Best</dt><dd id="resultBest">-</dd></div>
-      <div><dt>Leaderboard Eligibility</dt><dd>Not eligible yet</dd></div>
+      <div><dt>Leaderboard Eligibility</dt><dd id="resultEligibility">Not ranked</dd></div>
     </dl>
     <div class="tt-custom-buttons">
       <button type="button" class="tt-button" id="tryAgain">Try Again</button>
       <button type="button" class="tt-button tt-secondary" id="newText">Practice New Text</button>
       <a class="tt-button tt-secondary" href="#languageSelect">Change Language</a>
       <a class="tt-button tt-secondary" href="{% url 'typingtest:progress' %}">View Progress</a>
+      <a class="tt-button tt-secondary" href="{% url 'typingtest:leaderboard' %}?language={{ language.code }}">Leaderboards</a>
       <button type="button" class="tt-button tt-secondary" id="shareResult">Share Result</button>
     </div>
     <p class="tt-note" id="resultSaveNote"></p>
   </section>
+
+  {% if mode != 'custom' %}
+  <details class="tt-settings">
+    <summary>Report a mistake in this text</summary>
+    <form id="reportForm">
+      <label for="reportMessage">What is wrong?</label>
+      <textarea id="reportMessage" rows="2" maxlength="500" required class="tt-report-text"></textarea>
+      <button type="submit" class="tt-button tt-secondary">Send report</button>
+      <p class="tt-note" id="reportStatus" role="status"></p>
+    </form>
+  </details>
+  {% endif %}
 
   {% if mode == 'time' %}
   <h2>Choose Your Test Duration</h2>
@@ -219,6 +232,8 @@
   <p>No. You can take the test without signing in.</p>
   <h3>Does the timer stop if I switch tabs?</h3>
   <p>No. It keeps running, and the time left stays correct when you come back.</p>
+  <h3>How do leaderboards work?</h3>
+  <p>Sign in and keep the standard settings, and the site scores your test itself. See the <a href="{% url 'typingtest:leaderboard' %}?language={{ language.code }}">{{ language.name }} leaderboards and rules</a>.</p>
   <h3>Can I paste text into the test?</h3>
   <p>No. Pasting is turned off so the result reflects your typing. To practice your own text, use Custom Text.</p>
 

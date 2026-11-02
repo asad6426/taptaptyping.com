@@ -11,12 +11,20 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from typingApp.scoring import MAX_PLAUSIBLE_WPM
 
+from .scoring import score_typed_text
 from .languages import CUSTOM_DURATION_MAX, CUSTOM_DURATION_MIN, DURATIONS, LANGUAGES, LANGUAGES_BY_CODE, MODES
-from .models import TestResult, UserPreference
+from .models import TestResult, TestSession, UserPreference
 
 SCORING_VERSION = '1'
 RESULTS_PER_MINUTE = 20
 HISTORY_LIMIT = 50
+INPUT_CATEGORIES = {'desktop', 'ime', 'mobile'}
+RANKED_MIN_SECONDS = 15
+RANKED_MIN_CORRECT = 20
+CLOCK_TOLERANCE_SECONDS = 3
+FLAG_SPEED_WPM = 180
+FLAG_ACCURATE_WPM = 120
+FLAG_ACCURATE_PERCENT = 99.5
 MODE_KEYS = {key for key, _, _ in MODES}
 MODE_LABELS = {key: label for key, _, label in MODES}
 DIFFICULTIES = {'', 'beginner', 'intermediate', 'advanced'}
@@ -106,9 +114,80 @@ def validated_result(data):
     }
 
 
+def ranked_result(user, data, fields):
+    """Rescores a result from its TestSession using the server's text and clock.
+    Returns (fields, reason). A reason means the result counts as practice only.
+    Raises ValueError if the session or result is impossible."""
+    token = data.get('sessionToken')
+    now = timezone.now()
+    # One use only, even if two requests arrive together
+    claimed = TestSession.objects.filter(token=token, user=user, used_at__isnull=True).update(used_at=now)
+    if not claimed:
+        raise ValueError('session')
+    session = TestSession.objects.get(token=token)
+
+    typed = data.get('typedText')
+    if not isinstance(typed, str) or len(typed) > len(session.target_text) * 2 + 100:
+        raise ValueError('typed text')
+    if session.started_at is None:
+        raise ValueError('session not started')
+
+    server_elapsed = (now - session.started_at).total_seconds()
+    if fields['elapsed_sec'] > server_elapsed + CLOCK_TOLERANCE_SECONDS:
+        raise ValueError('clock')
+
+    score = score_typed_text(session.target_text, typed)
+    timed = session.duration_sec is not None
+    elapsed = min(server_elapsed, session.duration_sec) if timed else server_elapsed
+    if elapsed <= 0 or fields['attempts'] < score['correct'] + score['incorrect']:
+        raise ValueError('figures')
+
+    cpm = score['correct'] / (elapsed / 60)
+    wpm = cpm / 5
+    if wpm > MAX_PLAUSIBLE_WPM:
+        raise ValueError('speed')
+
+    accuracy = round(min(fields['accuracy'], score['correct'] / fields['attempts'] * 100), 2) if fields['attempts'] else 0
+    category = data.get('inputCategory')
+    fields.update(
+        language=session.language,
+        mode=session.mode,
+        duration_sec=session.duration_sec,
+        text_size=session.text_size,
+        difficulty=session.difficulty,
+        correct_units=score['correct'],
+        incorrect_units=score['incorrect'],
+        elapsed_sec=round(elapsed, 2),
+        accuracy=accuracy,
+        cpm=round(cpm, 2),
+        wpm=round(wpm, 2),
+        content_version=session.content_version,
+        input_category=category if category in INPUT_CATEGORIES else 'unspecified',
+    )
+
+    if category not in INPUT_CATEGORIES:
+        return fields, 'The input type was not recognized.'
+    if data.get('pasteAttempted'):
+        return fields, 'Paste was used during this test.'
+    if elapsed < RANKED_MIN_SECONDS or score['correct'] < RANKED_MIN_CORRECT:
+        return fields, f'Tests need at least {RANKED_MIN_SECONDS} seconds and {RANKED_MIN_CORRECT} correct units.'
+    if timed and server_elapsed < session.duration_sec - CLOCK_TOLERANCE_SECONDS:
+        return fields, 'The test did not run for its full time.'
+    if not timed and score['typed'] < score['target']:
+        return fields, 'The text was not finished.'
+
+    fields['is_ranked'] = True
+    if wpm > FLAG_SPEED_WPM:
+        fields.update(review_status=TestResult.FLAGGED, flag_reason=f'Above {FLAG_SPEED_WPM} WPM')
+    elif wpm > FLAG_ACCURATE_WPM and accuracy >= FLAG_ACCURATE_PERCENT:
+        fields.update(review_status=TestResult.FLAGGED, flag_reason='Very fast and almost no mistakes')
+    return fields, ''
+
+
 def same_configuration(user, fields):
     return TestResult.objects.filter(
         user=user,
+        input_category=fields.get('input_category', 'unspecified'),
         language=fields['language'],
         mode=fields['mode'],
         duration_sec=fields['duration_sec'],
@@ -127,8 +206,12 @@ def save_result(request):
     if TestResult.objects.filter(user=request.user, created_at__gte=minute_ago).count() >= RESULTS_PER_MINUTE:
         return JsonResponse({'success': False, 'error': 'Too many results. Try again in a minute.'}, status=429)
 
+    reason = 'This test was practice only.'
     try:
-        fields = validated_result(json.loads(request.body))
+        data = json.loads(request.body)
+        fields = validated_result(data)
+        if data.get('sessionToken'):
+            fields, reason = ranked_result(request.user, data, fields)
     except (ValueError, TypeError, AttributeError):
         return JsonResponse({'success': False, 'error': 'This result could not be accepted.'}, status=400)
 
@@ -140,6 +223,9 @@ def save_result(request):
         'cpm': fields['cpm'],
         'personalBest': max(fields['wpm'], previous_best or 0),
         'isNewBest': previous_best is not None and fields['wpm'] > previous_best,
+        'ranked': fields.get('is_ranked', False),
+        'underReview': fields.get('review_status') == TestResult.FLAGGED,
+        'reason': reason,
     })
 
 

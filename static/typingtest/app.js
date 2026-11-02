@@ -42,6 +42,12 @@
     let seed = 0;
     let lastResult = null;
     let customBase = '';
+    let rankedToken = null;
+    let rankedStart = null;
+    let generation = 0;
+    let pasteAttempted = false;
+    let usedComposition = false;
+    let completed = false;
 
     function loadPrefs() {
         let saved = {};
@@ -78,6 +84,41 @@
         });
     }
 
+    /** Analytics carries only these settings, never typed text. */
+    function track(event, extra = {}) {
+        if (navigator.globalPrivacyControl || typeof window.gtag !== 'function') return;
+        window.gtag('event', event, {
+            language: config.language,
+            mode: config.mode,
+            duration: durationSec,
+            difficulty: prefs.difficulty,
+            deviceCategory: isMobileInput() ? 'mobile' : 'desktop',
+            inputCategory: inputCategory(),
+            scoringVersion: config.scoringVersion,
+            ...extra,
+        });
+    }
+
+    function isMobileInput() {
+        return navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)').matches;
+    }
+
+    function inputCategory() {
+        if (isMobileInput()) return 'mobile';
+        return usedComposition ? 'ime' : 'desktop';
+    }
+
+    /** Ranked tests need a server session, standard settings and a fixed length. */
+    function canRank() {
+        if (!config.signedIn || !['time', 'words', 'paragraph', 'numbers'].includes(config.mode)) return false;
+        const standard = prefs.allowCorrections && !prefs.stopOnError && !prefs.strictAccuracy
+            && !prefs.punctuation && !prefs.numbers && !prefs.capitalization;
+        if (!standard) return false;
+        if (config.mode === 'time') return config.rankedDurations.includes(durationSec);
+        if (config.mode === 'words') return checked('wordCount') !== 'custom';
+        return true;
+    }
+
     function textSize() {
         if (config.mode === 'words') {
             const count = checked('wordCount');
@@ -102,6 +143,7 @@
         }
         note.textContent = 'Saving your result...';
         try {
+            if (rankedStart) await rankedStart;
             const response = await postJson('/typing-test/api/results', {
                 language: config.language,
                 mode: config.mode,
@@ -109,7 +151,10 @@
                 textSize: textSize(),
                 difficulty: config.mode === 'time' || config.mode === 'words' ? prefs.difficulty : '',
                 contentVersion: config.contentVersion,
+                inputCategory: inputCategory(),
+                pasteAttempted,
                 ...result,
+                ...(rankedToken ? { sessionToken: rankedToken, typedText: session.text() } : {}),
             });
             const data = await response.json();
             if (!response.ok || !data.success) {
@@ -117,7 +162,14 @@
                 return;
             }
             $('resultBest').textContent = data.personalBest + ' WPM';
-            note.textContent = data.isNewBest ? 'New personal best! Saved to your progress.' : 'Saved to your progress.';
+            if (rankedToken) {
+                // The server's calculation is the official result
+                $('resultSpeed').textContent = data.wpm;
+                $('resultCpm').textContent = data.cpm;
+            }
+            $('resultEligibility').textContent = data.underReview ? 'Under review' : (data.ranked ? 'Ranked' : 'Not ranked');
+            const saved = data.isNewBest ? 'New personal best! Saved to your progress.' : 'Saved to your progress.';
+            note.textContent = data.ranked ? saved : saved + ' ' + data.reason;
         } catch (error) {
             note.textContent = 'You seem to be offline, so this result was not saved.';
         }
@@ -181,6 +233,10 @@
     }
 
     function startSession(text, options = {}) {
+        pasteAttempted = false;
+        usedComposition = false;
+        completed = false;
+        rankedStart = null;
         clearInterval(tick);
         tick = null;
         composing = false;
@@ -212,7 +268,31 @@
         }
         const text = buildText();
         if (text === null) return;
-        startSession(text);
+        const current = ++generation;
+        rankedToken = null;
+        if (!canRank()) {
+            startSession(text);
+            track('test_restarted');
+            return;
+        }
+        input.disabled = true;
+        statusLine.textContent = 'Preparing your test...';
+        postJson('/typing-test/api/sessions', {
+            language: config.language,
+            mode: config.mode,
+            durationSec: config.mode === 'time' ? durationSec : null,
+            textSize: textSize(),
+            difficulty: prefs.difficulty,
+        }).then((response) => (response.ok ? response.json() : Promise.reject(new Error('session')))).then((data) => {
+            if (current !== generation) return;
+            rankedToken = data.token;
+            startSession(data.target);
+        }).catch(() => {
+            if (current !== generation) return;
+            // The test still works when the server cannot be reached, but it cannot be ranked
+            startSession(text);
+            statusLine.textContent = 'Could not reach the server, so this test will not be ranked. Start typing to begin.';
+        });
     }
 
     function render() {
@@ -277,6 +357,13 @@
             return;
         }
         if (session.startedAt !== null) {
+            if (!rankedStart && rankedToken) {
+                rankedStart = postJson('/typing-test/api/sessions/' + rankedToken + '/start', {}).catch(() => {});
+                track('test_started');
+            } else if (!rankedStart && !rankedToken) {
+                rankedStart = Promise.resolve();
+                track('test_started');
+            }
             lockScoringSettings(true);
             startTicking();
             if (accepted) statusLine.textContent = '';
@@ -286,7 +373,7 @@
             return;
         }
         // Repeat Text Until Timer Ends, and a safety margin for timed tests
-        if (session.durationSec !== null && !session.endOnComplete && session.target.length - session.units.length < 50) {
+        if (!rankedToken && session.durationSec !== null && !session.endOnComplete && session.target.length - session.units.length < 50) {
             session.extend((config.mode === 'custom' ? '\n' + customBase : config.joiner + buildText()));
         }
         render();
@@ -318,6 +405,8 @@
         results.hidden = false;
         statusLine.textContent = 'Test finished. Speed ' + result.wpm + ' WPM, accuracy ' + result.accuracy + ' percent.';
         $('tryAgain').focus({ preventScroll: true });
+        completed = true;
+        track('test_completed');
         saveResult(result);
     }
 
@@ -452,7 +541,10 @@
 
     // ---- Events ----
 
-    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionstart', () => {
+        composing = true;
+        usedComposition = true;
+    });
     input.addEventListener('compositionupdate', (event) => { session.compose(event.data); });
     input.addEventListener('compositionend', () => {
         composing = false;
@@ -470,10 +562,15 @@
     });
     input.addEventListener('paste', (event) => {
         event.preventDefault();
+        pasteAttempted = true;
         statusLine.textContent = 'Pasting is turned off in this test.';
     });
 
     display.addEventListener('click', () => input.focus());
+    display.addEventListener('keydown', (event) => {
+        // Arrow keys scroll this region; anything else goes to the typing box
+        if (event.key.length === 1) input.focus();
+    });
     $('restartTest').addEventListener('click', () => newTest(true));
     $('tryAgain').addEventListener('click', () => newTest(true));
     $('newText').addEventListener('click', () => newTest(false));
@@ -484,6 +581,7 @@
             if (navigator.share) await navigator.share({ text, url: location.href });
             else await navigator.clipboard.writeText(text + ' ' + location.href);
             statusLine.textContent = navigator.share ? 'Result shared.' : 'Result copied.';
+            track('result_shared');
         } catch (error) {
             statusLine.textContent = 'The result could not be shared.';
         }
@@ -526,6 +624,34 @@
         });
     }
 
+    window.addEventListener('pagehide', () => {
+        if (session && session.startedAt !== null && !completed) track('test_abandoned');
+    });
+    window.addEventListener('offline', () => {
+        if (session && !session.finished) statusLine.textContent = 'You are offline. You can keep typing, but this result may not be saved.';
+    });
+
+    const reportForm = $('reportForm');
+    if (reportForm) {
+        reportForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const statusNote = $('reportStatus');
+            try {
+                const response = await postJson('/typing-test/api/report', {
+                    language: config.language,
+                    mode: config.mode,
+                    message: $('reportMessage').value,
+                    excerpt: session.target.slice(0, 60).join(''),
+                });
+                const data = await response.json();
+                statusNote.textContent = data.success ? 'Thank you. Your report was sent.' : data.error;
+                if (data.success) $('reportMessage').value = '';
+            } catch (error) {
+                statusNote.textContent = 'The report could not be sent. Try again later.';
+            }
+        });
+    }
+
     setUpSettings();
 
     const digitChoice = document.querySelector('input[name="digitStyle"][value="' + prefs.digitStyle + '"]');
@@ -543,6 +669,7 @@
         return;
     }
 
+    track('mode_selected');
     if (config.mode === 'custom') {
         setUpCustomMode();
         session = new TypingSession({ target: '', locale: config.locale });

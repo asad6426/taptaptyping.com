@@ -32,7 +32,7 @@
     --tt-incorrect: #ffb4ab;
     --tt-incorrect-bg: #5c1a14;
     --tt-partial: #ffd479;
-    --tt-button: #1b8ba3;
+    --tt-button: #14758a;
     --tt-surface: #10292f;
     --tt-input-text: #e8f2f4;
     background: #0a1d24;
@@ -48,7 +48,7 @@
         --tt-incorrect: #ffb4ab;
         --tt-incorrect-bg: #5c1a14;
         --tt-partial: #ffd479;
-        --tt-button: #1b8ba3;
+        --tt-button: #14758a;
         --tt-surface: #10292f;
         --tt-input-text: #e8f2f4;
         background: #0a1d24;
@@ -385,4 +385,32 @@ body:has(.tt-page[data-theme="dark"]) {
 }
 .tt-danger {
     background: #b3261e;
+}
+.tt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px 14px;
+}
+.tt-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.85rem;
+}
+.tt-filters select, .tt-report-text {
+    padding: 7px 10px;
+    border: 1px solid var(--tt-border);
+    border-radius: 8px;
+    background: var(--tt-surface);
+    color: var(--tt-input-text);
+}
+.tt-report-text {
+    display: block;
+    width: 100%;
+    margin: 4px 0 8px;
+}
+.tt-page p a, .tt-page td a {
+    color: var(--tt-heading);
+    text-decoration: underline;
 }
