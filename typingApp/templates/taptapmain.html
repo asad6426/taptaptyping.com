@@ -106,6 +106,16 @@
             transform: translateY(-2px);
         }
 
+        .text-type-select {
+            padding: 10px 16px;
+            border: 2px solid #0b5f70;
+            border-radius: 25px;
+            background: #ffffff;
+            color: #0b5f70;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .time-btn.active {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             border-color: #ef4444;
@@ -718,6 +728,11 @@
             <button class="time-btn" data-time="120">2 Minutes</button>
             <button class="time-btn" data-time="300">5 Minutes</button>
             <button class="time-btn" data-time="600">10 Minutes</button>
+            <select class="text-type-select" id="textTypeSelect" aria-label="Text difficulty">
+                <option value="Easy">Easy Text</option>
+                <option value="Medium" selected>Medium Text</option>
+                <option value="Hard">Hard Text</option>
+            </select>
         </div>
 
         <!-- Test Section -->
@@ -938,6 +953,7 @@
 
         let currentText = '';
         let selectedDuration = 60; // Default 1 minute
+        let selectedTextType = 'Medium';
         let startTime = null;
         let timerInterval = null;
         let timeRemaining = selectedDuration;
@@ -962,9 +978,17 @@
         const modalOverlay = document.getElementById('modal-overlay');
         const closeBtn = document.getElementById('close-btn');
         const timeButtons = document.querySelectorAll('.time-btn');
+        const textTypeSelect = document.getElementById('textTypeSelect');
 
         // Initialize
         function init() {
+            // Apply the text type chosen on the homepage form
+            const requestedTextType = new URLSearchParams(window.location.search).get('text_type');
+            if (['Easy', 'Medium', 'Hard'].includes(requestedTextType)) {
+                selectedTextType = requestedTextType;
+                textTypeSelect.value = requestedTextType;
+            }
+
             loadTextForDuration(selectedDuration);
             
             // Time selection buttons
@@ -979,6 +1003,15 @@
                 });
             });
             
+            textTypeSelect.addEventListener('change', function() {
+                if (isTestRunning) {
+                    this.value = selectedTextType;
+                    return;
+                }
+                selectedTextType = this.value;
+                resetTest();
+            });
+
             // Apply the duration chosen on the homepage form
             const requestedDuration = new URLSearchParams(window.location.search).get('test_duration');
             timeButtons.forEach(btn => {
@@ -997,9 +1030,23 @@
             textDisplay.focus();
         }
 
+        // Easy: lowercase words only. Medium: the text as written. Hard: adds numbers and symbols.
+        function applyTextType(text) {
+            if (selectedTextType === 'Easy') {
+                return text.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+            }
+            if (selectedTextType === 'Hard') {
+                const extras = ['2,048', '#17', '(36)', '$95', '7.5%', 'C++', '12:30', '[x]', '@home', '&'];
+                return text.split(' ').map((word, i) => (
+                    (i + 1) % 6 === 0 ? word + ' ' + extras[Math.floor(i / 6) % extras.length] : word
+                )).join(' ');
+            }
+            return text;
+        }
+
         function loadTextForDuration(duration) {
             const pool = contentPools[duration];
-            currentText = pool[Math.floor(Math.random() * pool.length)];
+            currentText = applyTextType(pool[Math.floor(Math.random() * pool.length)]);
             displayText();
         }
 
@@ -1077,7 +1124,7 @@
         function extendText() {
             // Get additional text from the same duration pool
             const pool = contentPools[selectedDuration];
-            const additionalText = pool[Math.floor(Math.random() * pool.length)];
+            const additionalText = applyTextType(pool[Math.floor(Math.random() * pool.length)]);
             
             // Add a separator and new content
             currentText += ' ' + additionalText;

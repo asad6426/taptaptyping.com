@@ -58,17 +58,27 @@ class HomepageTests(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home2.html')
         self.assertContains(response, '<title>TapTapTyping - Free Online Typing Speed Test')
-        self.assertContains(response, '<h1 class="header-title">Free Typing Speed Test</h1>')
+        self.assertContains(response, 'Test Your Typing Speed in <span id="durationHeading">60 Seconds</span></h1>')
         self.assertNotContains(response, 'GLOBAL LEADERBOARD')
 
     def test_form_only_offers_options_the_test_supports(self):
         response = self.client.get('/')
-        self.assertNotContains(response, 'text_type')
         self.assertNotContains(response, 'value="180"')
+        for level in ('Easy', 'Medium', 'Hard'):
+            self.assertContains(response, f'<option value="{level}"')
         test_page = self.client.get('/taptap/')
         for seconds in (30, 60, 120, 300, 600):
             self.assertContains(response, f'<option value="{seconds}"')
             self.assertContains(test_page, f'data-time="{seconds}"')
+
+    def test_home_links_to_every_section(self):
+        response = self.client.get('/')
+        for path in ('/taptap/', '/typing-lessons/', '/typingGames/', '/leaderboard/',
+                     '/dashboard/', '/certificate/', '/blogs/'):
+            self.assertContains(response, f'class="home-card" href="{path}"')
+
+    def test_added_text_uses_the_chosen_text_type(self):
+        self.assertContains(self.client.get('/taptap/'), 'const additionalText = applyTextType(')
 
     def test_leaderboard_has_its_own_url(self):
         response = self.client.get('/leaderboard/')

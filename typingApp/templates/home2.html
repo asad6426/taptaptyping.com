@@ -6,123 +6,387 @@
 
 {% block content %}
 <style>
-    .main-content {
-        padding: 2rem;
-        border-radius: 1rem;
-        background-color: #ffffff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center; /* Center text inside main content */
+    body {
+        background: #d9eef3;
     }
-    .header-title {
-        color: #0D6073;
-        font-weight: bold;
-        font-size: 2rem;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
+    body:has(.home-page[data-theme="dark"]) {
+        background: #0a1d24;
     }
-    .header-subtitle {
-        color: #1f8ea6;
-        font-weight: 600;
+    .home-page {
+        --panel-bg: #e9f6f9;
+        --panel-key: #d3e9ef;
+        --heading: #0b5c6e;
+        --body-text: #4b5f66;
+        --field-bg: #ffffff;
+        --field-text: #5a6468;
+        --field-shadow: 0 3px 8px rgba(11, 92, 110, 0.18);
+        --button-bg: #0b5f70;
+        --button-hover: #084c5a;
+        --card-bg: #ffffff;
+        --card-border: #cfe5ea;
+        --icon-bg: #e0f2f6;
+        --switch-off: #c9cfd1;
+        padding: 0 0 48px;
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .home-page[data-theme="dark"] {
+        --panel-bg: #10292f;
+        --panel-key: #17363e;
+        --heading: #8bdcec;
+        --body-text: #b7cbd1;
+        --field-bg: #1a3940;
+        --field-text: #e4f0f3;
+        --field-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        --button-bg: #1b8ba3;
+        --button-hover: #23a3be;
+        --card-bg: #13303a;
+        --card-border: #234750;
+        --icon-bg: #1d434d;
+        --switch-off: #4c6168;
+    }
+    .home-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .test-panel {
+        position: relative;
+        overflow: hidden;
+        padding: 40px 20px 44px;
+        border-radius: 20px;
+        background: var(--panel-bg);
+        box-shadow: 0 2px 10px rgba(11, 92, 110, 0.12);
+        text-align: center;
+    }
+    .panel-keys {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 280px;
+        color: var(--panel-key);
+        pointer-events: none;
+        --keys-left: radial-gradient(ellipse 30% 100% at 0 100%, #000 62%, transparent 100%);
+        --keys-right: radial-gradient(ellipse 30% 100% at 100% 100%, #000 62%, transparent 100%);
+        -webkit-mask-image: var(--keys-left), var(--keys-right);
+        mask-image: var(--keys-left), var(--keys-right);
+    }
+    .panel-content {
+        position: relative;
+    }
+    .test-panel h1 {
+        margin: 0 0 12px;
+        color: var(--heading);
+        font-size: clamp(1.7rem, 4.4vw, 2.6rem);
+        font-style: italic;
+        font-weight: 700;
+    }
+    .test-subtitle {
+        margin: 0 0 22px;
+        color: var(--heading);
+        font-size: clamp(1.1rem, 2.6vw, 1.55rem);
+    }
+    .test-label {
+        margin: 0 0 16px;
+        color: var(--heading);
+        font-size: 1.05rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+    .pill-select {
+        position: relative;
+        display: block;
+        width: min(100%, 468px);
+        margin: 0 auto 30px;
+    }
+    .pill-select select {
+        width: 100%;
+        height: 74px;
+        padding: 0 64px 0 24px;
+        border: 0;
+        border-radius: 37px;
+        background: var(--field-bg);
+        box-shadow: var(--field-shadow);
+        color: var(--field-text);
+        font-size: 1.45rem;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    .pill-select::after {
+        content: "";
+        position: absolute;
+        top: 24px;
+        right: 30px;
+        width: 18px;
+        height: 18px;
+        border-right: 4px solid var(--field-text);
+        border-bottom: 4px solid var(--field-text);
+        border-radius: 2px;
+        transform: rotate(45deg);
+        pointer-events: none;
+    }
+    .start-button {
+        display: inline-block;
+        min-height: 58px;
+        margin-top: 24px;
+        padding: 0 40px;
+        border: 0;
+        border-radius: 29px;
+        background: var(--button-bg);
+        box-shadow: 0 3px 8px rgba(11, 92, 110, 0.3);
+        color: #ffffff;
+        font-size: 1.35rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: background 0.2s ease;
+    }
+    .start-button:hover {
+        background: var(--button-hover);
+    }
+    .theme-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin: 42px 0 0;
+        color: var(--heading);
         font-size: 1.25rem;
-        margin-bottom: 1rem;
+        cursor: pointer;
     }
-    .center-wrapper {
+    .theme-toggle input {
+        position: absolute;
+        opacity: 0;
+    }
+    .theme-switch {
+        position: relative;
+        width: 60px;
+        height: 36px;
+        border-radius: 18px;
+        background: var(--switch-off);
+        transition: background 0.2s ease;
+    }
+    .theme-switch::before {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #ffffff;
+        transition: transform 0.2s ease;
+    }
+    .theme-toggle input:checked + .theme-switch {
+        background: var(--button-bg);
+    }
+    .theme-toggle input:checked + .theme-switch::before {
+        transform: translateX(24px);
+    }
+    .home-page select:focus-visible,
+    .start-button:focus-visible,
+    .home-card:focus-visible,
+    .theme-toggle input:focus-visible + .theme-switch {
+        outline: 3px solid var(--heading);
+        outline-offset: 3px;
+    }
+    .home-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+    .home-card {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    .test-select {
-        width: 50%;
-        min-width: 250px;
-        max-width: 400px;
-        padding: 0.5rem;
-        border: 2px solid #0D6073;
-        border-radius: 1.5rem;
-        font-size: 1rem;
-        margin-top: 0.5rem;
-    }
-    .testTimeTitle {
-        color: rgb(5, 90, 109);
-        font-weight: 500;
-        font-size: 1.2rem;
-    }
-    .btn-custom {
-        background-color: #0D6073;
-        color: white;
-        border-radius: 1.5rem;
-        padding: 0.6rem 2rem;
-        margin-top: 2rem;
-    }
-    .btn-custom:hover {
-        background-color: #1f8ea6;
-    }
-    .home-links {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
-        text-align: left;
-    }
-    .home-link {
-        display: block;
-        padding: 1.25rem;
-        border: 1px solid #d7e8ec;
-        border-radius: 0.75rem;
-        color: #0D6073;
+        padding: 22px;
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        background: var(--card-bg);
+        color: var(--body-text);
         text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .home-link:hover {
-        border-color: #1f8ea6;
+    .home-card:hover {
+        color: var(--body-text);
+        box-shadow: 0 8px 18px rgba(11, 92, 110, 0.18);
+        transform: translateY(-3px);
     }
-    .home-link h2 {
-        font-size: 1.15rem;
-        font-weight: bold;
-        margin-bottom: 0.35rem;
+    .home-card-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 14px;
+        border-radius: 14px;
+        background: var(--icon-bg);
+        color: var(--heading);
+        font-size: 1.25rem;
     }
-    .home-link p {
-        color: #4b5563;
+    .home-card h2 {
+        margin: 0 0 6px;
+        color: var(--heading);
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    .home-card p {
         margin: 0;
+        line-height: 1.5;
+    }
+    @media (max-width: 720px) {
+        .panel-keys {
+            display: none;
+        }
+    }
+    @media (max-width: 480px) {
+        .test-panel {
+            padding: 28px 16px 32px;
+        }
+        .pill-select {
+            margin-bottom: 20px;
+        }
+        .pill-select select {
+            height: 60px;
+            font-size: 1.15rem;
+        }
+        .pill-select::after {
+            top: 18px;
+        }
+        .theme-toggle {
+            margin-top: 28px;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .home-card, .theme-switch, .theme-switch::before, .start-button {
+            transition: none;
+        }
+        .home-card:hover {
+            transform: none;
+        }
     }
 </style>
 
-<main class="main-content">
-    <h1 class="header-title">Free Typing Speed Test</h1>
-    <p class="header-subtitle">{% if public_user_count %}Type away to join {{ public_user_count }} registered users!{% else %}Take a free typing test and see your speed and accuracy.{% endif %}</p>
+<main class="home-page" id="homePage">
+    <div class="home-inner">
+        <section class="test-panel">
+            <svg class="panel-keys" aria-hidden="true">
+                <defs>
+                    <pattern id="panelKeys" width="64" height="64" patternUnits="userSpaceOnUse" patternTransform="skewX(-12)">
+                        <rect x="4" y="4" width="56" height="54" rx="10" fill="currentColor"></rect>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#panelKeys)"></rect>
+            </svg>
 
-    <form id="testForm" action="{% url 'taptap' %}" method="GET">
-        
+            <div class="panel-content">
+                <h1>Test Your Typing Speed in <span id="durationHeading">60 Seconds</span></h1>
+                <p class="test-subtitle">{% if public_user_count %}Check your WPM and accuracy and join {{ public_user_count }} registered users.{% else %}Check your WPM and accuracy instantly.{% endif %}</p>
 
-        <!-- Select Your Test -->
-        <div class="center-wrapper">
-            <label for="test-duration" class="testTimeTitle">Select Your Test</label>
-            <select id="test-duration" name="test_duration" class="test-select">
-                <option value="30">30 second Test</option>
-                <option value="60" selected>1 Minute Test</option>
-                <option value="120">2 Minute Test</option>
-                <option value="300">5 Minute Test</option>
-                <option value="600">10 Minute Test</option>
-            </select>
-        </div>
+                <form id="testForm" action="{% url 'taptap' %}" method="GET">
+                    <p class="test-label">Customize your test</p>
 
-        <!-- Start Button -->
-        <button type="submit" id="startTest" class="btn btn-custom shadow">Start Test</button>
+                    <label class="pill-select">
+                        <span class="visually-hidden">Test length</span>
+                        <select id="test-duration" name="test_duration">
+                            <option value="30">30 Second Test</option>
+                            <option value="60" selected>1 Minute Test</option>
+                            <option value="120">2 Minute Test</option>
+                            <option value="300">5 Minute Test</option>
+                            <option value="600">10 Minute Test</option>
+                        </select>
+                    </label>
 
-    </form>
+                    <label class="pill-select">
+                        <span class="visually-hidden">Text difficulty</span>
+                        <select id="text-type" name="text_type">
+                            <option value="Easy">Easy Text</option>
+                            <option value="Medium" selected>Medium Text</option>
+                            <option value="Hard">Hard Text</option>
+                        </select>
+                    </label>
 
-    <section class="home-links">
-        <a class="home-link" href="{% url 'typingLession' %}">
-            <h2>Typing Lessons</h2>
-            <p>Learn touch typing one key group at a time, starting with the home row.</p>
-        </a>
-        <a class="home-link" href="{% url 'leaderboard' %}">
-            <h2>Leaderboard</h2>
-            <p>Sign in, save your test results and see how you rank.</p>
-        </a>
-        <a class="home-link" href="{% url 'blogs' %}">
-            <h2>Typing Blog</h2>
-            <p>Read tips and guides for improving your speed and accuracy.</p>
-        </a>
-    </section>
+                    <button type="submit" id="startTest" class="start-button">Start Test</button>
+                </form>
+
+                <label class="theme-toggle">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="theme-switch"></span>
+                    <span>Dark Mode</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="home-cards" aria-label="Explore TapTapTyping">
+            <a class="home-card" href="{% url 'taptap' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+                <h2>Typing Test</h2>
+                <p>Jump straight into a timed test and see your speed and accuracy.</p>
+            </a>
+            <a class="home-card" href="{% url 'typingLession' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
+                <h2>Typing Lessons</h2>
+                <p>Learn touch typing one key group at a time, starting with the home row.</p>
+            </a>
+            <a class="home-card" href="{% url 'typingGame' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-gamepad" aria-hidden="true"></i></span>
+                <h2>Typing Games</h2>
+                <p>Practise your typing with games instead of plain text.</p>
+            </a>
+            <a class="home-card" href="{% url 'leaderboard' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+                <h2>Leaderboard</h2>
+                <p>Sign in, save your test results and see how you rank.</p>
+            </a>
+            <a class="home-card" href="{% url 'dashboard' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+                <h2>Dashboard</h2>
+                <p>Sign in to track your speed, accuracy and recent tests.</p>
+            </a>
+            <a class="home-card" href="{% url 'certificate:home' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-award" aria-hidden="true"></i></span>
+                <h2>Certificate</h2>
+                <p>Take the typing exam to work towards your certificate.</p>
+            </a>
+            <a class="home-card" href="{% url 'blogs' %}">
+                <span class="home-card-icon"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i></span>
+                <h2>Typing Blog</h2>
+                <p>Read tips and guides for improving your speed and accuracy.</p>
+            </a>
+        </section>
+    </div>
 </main>
+
+<script>
+    (function () {
+        const page = document.getElementById('homePage');
+        const toggle = document.getElementById('themeToggle');
+        const duration = document.getElementById('test-duration');
+        const heading = document.getElementById('durationHeading');
+        const headings = { 30: '30 Seconds', 60: '60 Seconds', 120: '2 Minutes', 300: '5 Minutes', 600: '10 Minutes' };
+
+        function setTheme(dark) {
+            page.dataset.theme = dark ? 'dark' : 'light';
+            toggle.checked = dark;
+        }
+
+        try {
+            setTheme(localStorage.getItem('homeTheme') === 'dark');
+        } catch (error) {
+            setTheme(false);
+        }
+
+        toggle.addEventListener('change', function () {
+            setTheme(toggle.checked);
+            try {
+                localStorage.setItem('homeTheme', toggle.checked ? 'dark' : 'light');
+            } catch (error) {
+                // The choice just won't be remembered
+            }
+        });
+
+        duration.addEventListener('change', function () {
+            heading.textContent = headings[duration.value];
+        });
+    })();
+</script>
 {% endblock %}
