@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import TestCase
 
+from games.registry import GAMES
+
 from .models import Score, TypingTestResult
 from .views import PUBLIC_USER_COUNT_MIN, build_leaderboard, public_user_count
 
@@ -161,6 +163,30 @@ class RankingTests(TestCase):
         self.assertContains(response, '<span class="rank-number-large">#2</span>')
         self.assertContains(response, 'How ranking works')
         self.assertContains(response, 'FAST')
+
+
+class GameSubdomainTests(TestCase):
+    host = 'game.taptaptyping.com'
+
+    def setUp(self):
+        cache.clear()
+
+    def test_home_is_the_games_hub(self):
+        response = self.client.get('/', HTTP_HOST=self.host)
+        self.assertTemplateUsed(response, 'games/hub.html')
+        self.assertNotContains(response, 'durationHeading')
+
+    def test_every_game_opens(self):
+        for game in GAMES:
+            response = self.client.get(f"/play/{game['slug']}/", HTTP_HOST=self.host)
+            self.assertEqual(response.status_code, 200, game['slug'])
+
+    def test_shared_routes_still_work(self):
+        self.assertTemplateUsed(self.client.get('/s/', HTTP_HOST=self.host), 'home2.html')
+        self.assertTemplateUsed(self.client.get('/typing-leaderboard/', HTTP_HOST=self.host), 'leaderboard.html')
+
+    def test_main_site_home_is_unchanged(self):
+        self.assertTemplateUsed(self.client.get('/'), 'home2.html')
 
 
 class DashboardRankTests(TestCase):

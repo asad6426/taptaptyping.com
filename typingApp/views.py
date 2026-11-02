@@ -106,7 +106,7 @@ def build_leaderboard():
         wpm__lte=MAX_PLAUSIBLE_WPM,
         marks__isnull=False,
         user__is_active=True,
-    ).order_by('-created_at').values('user_id', 'wpm', 'accuracy', 'marks', 'correct_entries', 'time_taken')
+    ).order_by('-created_at', '-id').values('user_id', 'wpm', 'accuracy', 'marks', 'correct_entries', 'time_taken')
 
     for result in results:
         if not is_plausible_result(result['wpm'], result['correct_entries'], result['time_taken']):
