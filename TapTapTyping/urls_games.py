@@ -17,12 +17,14 @@ TapTapTyping/urls.py (the main site's urlconf) is completely untouched.
 """
 from django.contrib import admin
 from django.conf import settings
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.http import HttpResponse
 from django.views.static import serve as _serve_static
 
 from accounts import views as accounts_views
 from typingApp import views as typing_views
+from typingApp.Sitemaps import GamesSitemap
 from typingApp.urls import urlpatterns as _typing_urlpatterns
 
 _EXCLUDED_NAMES = {'blog_detail', 'start_test', 'leaderboard'}
@@ -59,6 +61,7 @@ urlpatterns = [
     path('s/', typing_views.start_test, name='start_test'),
     path('typing-leaderboard/', typing_views.leaderboard, name='leaderboard'),
     path('robots.txt', games_robots_txt, name='games_robots_txt'),
+    path('sitemap.xml', sitemap, {'sitemaps': {'games': GamesSitemap}}, name='games_sitemap'),
     # Blog post images (uploaded to MEDIA_ROOT) render on this host too, since
     # the blog list view is re-mounted here — mirrors TapTapTyping/urls.py's
     # media route, which lives outside typingApp.urls so _shared_typing_patterns

@@ -4,39 +4,17 @@ URL configuration for TapTapTyping project.
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap
 from django.http import HttpResponse
 from accounts import views
-
-
-# ── Inline Sitemaps ──────────────────────────────────────────
-class StaticViewSitemap(Sitemap):
-    changefreq = 'weekly'
-    protocol = 'https'
-
-    def items(self):
-        return [
-            ('/', 1.0),
-            ('/taptap/', 0.9),
-            ('/typing-lessons/', 0.9),
-            ('/leaderboard/', 0.7),
-            ('/typingGames/', 0.8),
-            ('/blogs/', 0.8),
-            ('/jobs/', 0.7),
-            ('/FAQ/', 0.6),
-            ('/aboutus/', 0.5),
-        ]
-
-    def location(self, item):
-        return item[0]
-
-    def priority(self, item):
-        return item[1]
+from typingApp.Sitemaps import BlogPostSitemap, JobPostSitemap, LessonSitemap, StaticViewSitemap
 
 
 sitemaps = {
     'static': StaticViewSitemap,
+    'lessons': LessonSitemap,
+    'blog': BlogPostSitemap,
+    'jobs': JobPostSitemap,
 }
 
 
@@ -72,6 +50,7 @@ urlpatterns = [
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('', include('typingtest.urls')),
     path('', include('typingApp.urls')),
 ]
 

@@ -18,7 +18,7 @@ from .forms import SignUpForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 def signup_view(request):
     """User registration view"""
     if request.user.is_authenticated:
-        return redirect('start_test')
+        return redirect('leaderboard')
     
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -28,9 +28,9 @@ def signup_view(request):
             user.save()
             
             # Log the user in after signup
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             messages.success(request, 'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! / Account created successfully!')
-            return redirect('start_test')
+            return redirect('leaderboard')
         else:
             messages.error(request, 'ভুল আছে, আবার চেষ্টা করুন / Please correct the errors.')
     else:
@@ -42,7 +42,7 @@ def signup_view(request):
 def login_view(request):
     """User login view"""
     if request.user.is_authenticated:
-        return redirect('start_test')
+        return redirect('leaderboard')
     
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -54,7 +54,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'স্বাগতম, {user.username}! / Welcome back, {user.username}!')
-                next_url = request.GET.get('next', 'start_test')
+                next_url = request.GET.get('next', 'leaderboard')
                 return redirect(next_url)
             else:
                 messages.error(request, 'Username বা Password ভুল আছে / Invalid username or password.')
@@ -75,7 +75,7 @@ def logout_view(request):
 def forgot_password_view(request):
     """Forgot password view - sends reset email"""
     if request.user.is_authenticated:
-        return redirect('start_test')
+        return redirect('leaderboard')
     
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)

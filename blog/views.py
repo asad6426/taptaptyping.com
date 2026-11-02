@@ -49,7 +49,7 @@ def superuser_required(view_func):
 @superuser_required
 def blog_post_editor(request, post_id=None):
     """Main editor view - Superuser only"""
-    print(f"📝 Editor accessed by: {request.user.username} - Post ID: {post_id}")
+    print(f"[BLOG] Editor accessed by: {request.user.username} - Post ID: {post_id}")
     
     post = None
     images = []
@@ -59,8 +59,8 @@ def blog_post_editor(request, post_id=None):
         post = get_object_or_404(BlogPost, id=post_id)
         images = list(post.images.all().values('id', 'image', 'alt_text', 'caption', 'order'))
         videos = list(post.videos.all().values('id', 'video', 'thumbnail', 'title', 'description', 'order'))
-        print(f"✅ Post loaded: {post.title}")
-        print(f"📷 Images: {len(images)}, 🎥 Videos: {len(videos)}")
+        print(f"[BLOG] Post loaded: {post.title}")
+        print(f"[BLOG] Images: {len(images)}, Videos: {len(videos)}")
     
     context = {
         'post': post,
@@ -86,7 +86,7 @@ def blog_post_editor(request, post_id=None):
 @superuser_required
 def blog_posts_list_view(request):
     """Display all blog posts - Superuser only"""
-    print(f"📋 List view accessed by: {request.user.username}")
+    print(f"[BLOG] List view accessed by: {request.user.username}")
     
     posts = BlogPost.objects.all()
     
@@ -149,6 +149,7 @@ def blog_posts_list_view(request):
                     <td>{post.created_at.strftime("%Y-%m-%d %H:%M")}</td>
                     <td>
                         <a href="/blog/editor/{post.id}/" class="btn btn-edit">Edit</a>
+                        {f'<a href="https://taptaptyping.com{post.get_absolute_url()}" class="btn btn-edit" target="_blank" rel="noopener">View</a>' if post.published else ''}
                         <button class="btn btn-delete" onclick="del({post.id}, '{post.title}')">Delete</button>
                     </td>
                 </tr>
@@ -193,14 +194,14 @@ def blog_posts_list_view(request):
 def upload_image(request):
     """Upload images - Superuser only"""
     print(f"\n{'='*50}")
-    print(f"📷 IMAGE UPLOAD by {request.user.username}")
+    print(f"[BLOG] IMAGE UPLOAD by {request.user.username}")
     print("="*50)
     
     try:
         post_id = request.POST.get('post_id')
         files = request.FILES.getlist('images')
         
-        print(f"📦 Files: {len(files)}, Post ID: {post_id}")
+        print(f"[BLOG] Files: {len(files)}, Post ID: {post_id}")
         
         if not files:
             return JsonResponse({'success': False, 'error': 'No images'}, status=400)
@@ -244,7 +245,7 @@ def upload_image(request):
                 'caption': image.caption
             })
         
-        print(f"✅ Uploaded {len(uploaded_images)} images")
+        print(f"[BLOG] Uploaded {len(uploaded_images)} images")
         
         return JsonResponse({
             'success': True,
@@ -254,7 +255,7 @@ def upload_image(request):
         })
         
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"[BLOG] Error: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
@@ -267,7 +268,7 @@ def upload_image(request):
 def upload_video(request):
     """Upload video - Superuser only"""
     print(f"\n{'='*50}")
-    print(f"🎥 VIDEO UPLOAD by {request.user.username}")
+    print(f"[BLOG] VIDEO UPLOAD by {request.user.username}")
     print("="*50)
     
     try:
@@ -306,7 +307,7 @@ def upload_video(request):
             order=post.videos.count()
         )
         
-        print(f"✅ Video uploaded: {video.id}")
+        print(f"[BLOG] Video uploaded: {video.id}")
         
         return JsonResponse({
             'success': True,
@@ -335,7 +336,7 @@ def upload_video(request):
 @require_http_methods(["POST"])
 def delete_image(request, image_id):
     """Delete image - Superuser only"""
-    print(f"🗑️  DELETE Image {image_id} by {request.user.username}")
+    print(f"[BLOG] DELETE Image {image_id} by {request.user.username}")
     
     try:
         image = get_object_or_404(BlogPostImage, id=image_id)
@@ -344,7 +345,7 @@ def delete_image(request, image_id):
             os.remove(image.image.path)
         
         image.delete()
-        print(f"✅ Image deleted")
+        print(f"[BLOG] Image deleted")
         
         return JsonResponse({'success': True, 'message': 'Image deleted!'})
         
@@ -361,7 +362,7 @@ def delete_image(request, image_id):
 @require_http_methods(["POST"])
 def delete_video(request, video_id):
     """Delete video - Superuser only"""
-    print(f"🗑️  DELETE Video {video_id} by {request.user.username}")
+    print(f"[BLOG] DELETE Video {video_id} by {request.user.username}")
     
     try:
         video = get_object_or_404(BlogPostVideo, id=video_id)
@@ -373,7 +374,7 @@ def delete_video(request, video_id):
             os.remove(video.thumbnail.path)
         
         video.delete()
-        print(f"✅ Video deleted")
+        print(f"[BLOG] Video deleted")
         
         return JsonResponse({'success': True, 'message': 'Video deleted!'})
         
@@ -391,7 +392,7 @@ def delete_video(request, video_id):
 def save_blog_post(request):
     """Save blog post - Superuser only"""
     print(f"\n{'='*50}")
-    print(f"💾 SAVE by {request.user.username}")
+    print(f"[BLOG] SAVE by {request.user.username}")
     print("="*50)
     
     try:
@@ -401,7 +402,7 @@ def save_blog_post(request):
         if post_id:
             try:
                 post = BlogPost.objects.get(id=post_id)
-                print(f"✏️  Updating: {post.title}")
+                print(f"[BLOG] Updating: {post.title}")
             except BlogPost.DoesNotExist:
                 post = BlogPost(author=request.user)
         else:
@@ -412,11 +413,12 @@ def save_blog_post(request):
         post.content = data.get('content', '')
         post.meta_description = data.get('meta_description', '')
         post.focus_keyword = data.get('focus_keyword', '')
+        post.youtube_url = data.get('youtube_url', '')
+        post.category = data.get('category', '')
+        post.tags = data.get('tags', '')
+        post.published = data.get('published', False)
         
-        slug = data.get('slug', '')
-        if not slug and post.title:
-            slug = slugify(post.title)
-        post.slug = slug
+        post.slug = post.build_slug(data.get('slug', ''))
         
         post.overall_seo_score = data.get('overall_seo_score', 0)
         post.title_score = data.get('title_score', 0)
@@ -425,7 +427,7 @@ def save_blog_post(request):
         post.seo_metrics = data.get('seo_metrics', {})
         
         post.save()
-        print(f"✅ SAVED! ID: {post.id}")
+        print(f"[BLOG] SAVED! ID: {post.id}")
         
         SEOAnalysis.objects.create(
             blog_post=post,
@@ -436,11 +438,20 @@ def save_blog_post(request):
             metrics=post.seo_metrics
         )
         
+        # Build public URL
+        public_url = f'/{post.slug}/' if post.slug else ''
+        site_url = request.build_absolute_uri('/').rstrip('/')
+        full_url = f'{site_url}{public_url}'
+        
         return JsonResponse({
             'success': True,
             'post_id': post.id,
             'message': 'Saved successfully!',
-            'total_posts': BlogPost.objects.count()
+            'slug': post.slug,
+            'total_posts': BlogPost.objects.count(),
+            'published': post.published,
+            'public_url': public_url,
+            'full_url': full_url,
         })
         
     except Exception as e:
@@ -455,7 +466,7 @@ def save_blog_post(request):
 @require_http_methods(["GET"])
 def get_blog_post(request, post_id):
     """Get blog post - Superuser only"""
-    print(f"📖 GET Post {post_id} by {request.user.username}")
+    print(f"[BLOG] GET Post {post_id} by {request.user.username}")
     
     try:
         post = get_object_or_404(BlogPost, id=post_id)
@@ -472,6 +483,11 @@ def get_blog_post(request, post_id):
                 'content': post.content,
                 'meta_description': post.meta_description,
                 'focus_keyword': post.focus_keyword,
+                'youtube_url': post.youtube_url or '',
+                'category': post.category or '',
+                'tags': post.tags or '',
+                'published': post.published,
+                'featured_image': post.featured_image.url if post.featured_image else None,
                 'overall_seo_score': post.overall_seo_score,
                 'title_score': post.title_score,
                 'content_score': post.content_score,
@@ -520,7 +536,7 @@ def list_blog_posts(request):
 @require_http_methods(["POST"])
 def delete_blog_post(request, post_id):
     """Delete blog post - Superuser only"""
-    print(f"\n🗑️  DELETE POST {post_id} by {request.user.username}")
+    print(f"\n[BLOG] DELETE POST {post_id} by {request.user.username}")
     
     try:
         post = get_object_or_404(BlogPost, id=post_id)
@@ -541,7 +557,7 @@ def delete_blog_post(request, post_id):
         
         post.delete()
         
-        print(f"✅ DELETED: {title}")
+        print(f"[BLOG] DELETED: {title}")
         
         return JsonResponse({
             'success': True,
@@ -552,4 +568,87 @@ def delete_blog_post(request, post_id):
         
     except Exception as e:
         print(f"❌ Error: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ============================================
+# UPLOAD FEATURED IMAGE
+# ============================================
+@csrf_exempt
+@superuser_required
+@require_http_methods(["POST"])
+def upload_featured_image(request):
+    """Upload featured image for a blog post - Superuser only"""
+    print(f"[BLOG] FEATURED IMAGE UPLOAD by {request.user.username}")
+    try:
+        post_id = request.POST.get('post_id')
+        image_file = request.FILES.get('featured_image')
+        
+        if not image_file:
+            return JsonResponse({'success': False, 'error': 'No image provided'}, status=400)
+        
+        if post_id:
+            try:
+                post = BlogPost.objects.get(id=post_id)
+            except BlogPost.DoesNotExist:
+                post = BlogPost.objects.create(
+                    title='Untitled Post',
+                    slug=f'untitled-{int(timezone.now().timestamp())}',
+                    author=request.user
+                )
+        else:
+            post = BlogPost.objects.create(
+                title='Untitled Post',
+                slug=f'untitled-{int(timezone.now().timestamp())}',
+                author=request.user
+            )
+        
+        # Delete old featured image file if exists
+        if post.featured_image:
+            if os.path.exists(post.featured_image.path):
+                os.remove(post.featured_image.path)
+        
+        post.featured_image = image_file
+        post.save(update_fields=['featured_image'])
+        
+        print(f"[BLOG] Featured image saved: {post.featured_image.url}")
+        
+        return JsonResponse({
+            'success': True,
+            'post_id': post.id,
+            'featured_image_url': post.featured_image.url,
+            'message': 'Featured image uploaded!'
+        })
+        
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ============================================
+# TOGGLE PUBLISH
+# ============================================
+@csrf_exempt
+@superuser_required
+@require_http_methods(["POST"])
+def toggle_publish(request, post_id):
+    """Toggle published status - Superuser only"""
+    try:
+        post = get_object_or_404(BlogPost, id=post_id)
+        post.published = not post.published
+        post.save(update_fields=['published'])
+        
+        public_url = f'/{post.slug}/' if post.slug else ''
+        site_url = request.build_absolute_uri('/').rstrip('/')
+        
+        print(f"[BLOG] Post {post_id} published={post.published}")
+        
+        return JsonResponse({
+            'success': True,
+            'published': post.published,
+            'message': 'Published! 🎉' if post.published else 'Moved to Draft',
+            'public_url': public_url,
+            'full_url': f'{site_url}{public_url}',
+        })
+    except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)

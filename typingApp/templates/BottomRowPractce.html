@@ -795,7 +795,7 @@
         <div class="results-modal">
             <button class="close-btn" id="close-btn">×</button>
             
-            <img src="/static/taptaptyping logo.jpg" alt="Logo" class="modal-logo">
+            <img src="/static/taptaptyping-logo.jpg" alt="Logo" class="modal-logo">
             <h2>🎉 Test Results 🎉</h2>
 
             <div class="main-results">
@@ -1434,6 +1434,7 @@ function displayResults(wpm, accuracy, rawSpeed, kpm, completeWords, timeElapsed
     
     // Prepare and send data to Django
     const resultData = {
+        lesson: 'BottomRowPractce',
         test_duration: selectedDuration,
         time_taken: timeElapsed,
         time_taken_formatted: formattedTime,

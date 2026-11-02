@@ -1,0 +1,76 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block title %}Your Typing Progress | TapTapTyping{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'typingtest/typing.css' %}">{% endblock %}
+
+{% block content %}
+<main class="tt-page">
+  <h1>Your Typing Progress</h1>
+  <p class="tt-intro">Results from the language typing tests, compared only within the same test settings. Your older test history is still on your <a href="{% url 'dashboard' %}">dashboard</a>.</p>
+
+  <div class="tt-stats tt-progress-stats">
+    <div class="tt-stat"><span>Tests saved</span><strong>{{ total_tests }}</strong></div>
+    <div class="tt-stat"><span>Day streak</span><strong>{{ streak }}</strong></div>
+  </div>
+
+  <h2>Personal Bests</h2>
+  {% if bests %}
+    <div class="tt-table-wrap">
+      <table class="tt-table">
+        <thead><tr><th scope="col">Test</th><th scope="col">WPM (5 units)</th><th scope="col">Accuracy</th><th scope="col">Date</th></tr></thead>
+        <tbody>
+          {% for item in bests %}
+            <tr><td>{{ item.label }}</td><td>{{ item.wpm }}</td><td>{{ item.accuracy }}%</td><td>{{ item.date|date:"j M Y" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No saved tests yet. <a href="/english-typing-test">Take a test</a> while signed in and it will appear here.</p>
+  {% endif %}
+
+  <h2>Recent Tests</h2>
+  {% if history %}
+    <div class="tt-table-wrap">
+      <table class="tt-table">
+        <thead><tr><th scope="col">Test</th><th scope="col">WPM (5 units)</th><th scope="col">Accuracy</th><th scope="col">Date</th></tr></thead>
+        <tbody>
+          {% for item in history %}
+            <tr><td>{{ item.label }}</td><td>{{ item.wpm }}</td><td>{{ item.accuracy }}%</td><td>{{ item.date|date:"j M Y, H:i" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>Nothing here yet.</p>
+  {% endif %}
+
+  <h2>Profile</h2>
+  <form method="post" class="tt-profile">
+    {% csrf_token %}
+    <label for="displayName">Display name</label>
+    <input type="text" id="displayName" name="display_name" maxlength="40" value="{{ preference.display_name }}">
+    <label for="defaultLanguage">Default language</label>
+    <select id="defaultLanguage" name="default_language">
+      <option value="">No default</option>
+      {% for item in languages %}
+        <option value="{{ item.code }}"{% if item.code == preference.default_language %} selected{% endif %}>{{ item.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="tt-button">Save</button>
+    {% if notice %}<p class="tt-note" role="status">{{ notice }}</p>{% endif %}
+  </form>
+
+  {% if can_delete %}
+    <h2>Delete Your Account</h2>
+    <p>This permanently deletes your account and all of its data, including every test result, score and certificate. It cannot be undone.</p>
+    {% if request.GET.delete == 'mismatch' %}<p class="tt-error" role="alert">That username did not match, so nothing was deleted.</p>{% endif %}
+    <form method="post" action="{% url 'typingtest:delete_account' %}" class="tt-profile">
+      {% csrf_token %}
+      <label for="confirmUsername">Type your username to confirm</label>
+      <input type="text" id="confirmUsername" name="confirm_username" autocomplete="off" required>
+      <button type="submit" class="tt-button tt-danger">Delete my account</button>
+    </form>
+  {% endif %}
+</main>
+{% endblock %}

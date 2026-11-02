@@ -1,0 +1,25 @@
+{
+  "_comment": "Expected text units for every supported language. Shared by the engine tests now and by server-side validation in Stage 6. Boundaries were checked against Node 22 ICU and need native review.",
+  "languages": {
+    "english": {"locale": "en", "units": ["t", "h", "e", " ", "c", "a", "t"]},
+    "bengali": {"locale": "bn", "units": ["আ", "মি", " ", "বাং", "লা"]},
+    "hindi": {"locale": "hi", "units": ["हि", "न्दी", " ", "भा", "षा"]},
+    "indonesian": {"locale": "id", "units": ["b", "a", "h", "a", "s", "a"]},
+    "spanish": {"locale": "es", "units": ["m", "a", "ñ", "a", "n", "a"]},
+    "portuguese": {"locale": "pt", "units": ["m", "ã", "e"]},
+    "vietnamese": {"locale": "vi", "units": ["t", "i", "ế", "n", "g"]},
+    "turkish": {"locale": "tr", "units": ["ı", "ş", "ı", "k"]},
+    "german": {"locale": "de", "units": ["g", "r", "o", "ß"]},
+    "french": {"locale": "fr", "units": ["é", "c", "o", "l", "e"]},
+    "arabic": {"locale": "ar", "units": ["ل", "غ", "ة", " ", "١", "٢"]},
+    "russian": {"locale": "ru", "units": ["я", "з", "ы", "к"]},
+    "thai": {"locale": "th", "units": ["น้ำ", "ดี"]},
+    "urdu": {"locale": "ur", "units": ["ز", "ب", "ا", "ن"]},
+    "italian": {"locale": "it", "units": ["p", "i", "ù"]},
+    "polish": {"locale": "pl", "units": ["j", "ę", "z", "y", "k"]},
+    "dutch": {"locale": "nl", "units": ["t", "a", "a", "l"]},
+    "filipino": {"locale": "fil", "units": ["w", "i", "k", "a"]},
+    "japanese": {"locale": "ja", "units": ["こ", "と", "ば"]},
+    "korean": {"locale": "ko", "units": ["언", "어", " ", "집"]}
+  }
+}

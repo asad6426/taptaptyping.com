@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import JobPost, BlogPost, TypingTestResult, Score, Category
+from .models import JobPost, BlogPost, TypingTestResult, Score, Category, LessonProgress
 from .scoring import (
+    LESSON_MIN_CORRECT_CHARS,
+    LESSON_PASS_ACCURACY,
+    LESSON_SLUGS,
     MAX_PLAUSIBLE_WPM,
     RANKING_MIN_SECONDS,
     RANKING_MIN_TESTS,
@@ -40,8 +43,12 @@ def dashboard_view(request):
             rank = i
             break
     
-    recent_tests = TypingTestResult.objects.filter(user=user).order_by('-created_at')[:10]
-    all_tests = TypingTestResult.objects.filter(user=user).order_by('created_at')
+    # Impossible results stay in the database but are never shown
+    all_tests = [
+        test for test in TypingTestResult.objects.filter(user=user).order_by('created_at', 'id')
+        if is_plausible_result(test.wpm, test.correct_entries, test.time_taken)
+    ]
+    recent_tests = all_tests[::-1][:10]
     
     chart_labels = []
     chart_wpm = []
@@ -57,9 +64,9 @@ def dashboard_view(request):
     wpm_improvement = 0
     accuracy_improvement = 0
     
-    if all_tests.count() >= 2:
-        first_test = all_tests.first()
-        last_test = all_tests.last()
+    if len(all_tests) >= 2:
+        first_test = all_tests[0]
+        last_test = all_tests[-1]
         wpm_improvement = last_test.wpm - first_test.wpm
         accuracy_improvement = round(float(last_test.accuracy) - float(first_test.accuracy), 2)
     
@@ -70,7 +77,7 @@ def dashboard_view(request):
         'recent_tests': recent_tests,
         'wpm_improvement': wpm_improvement,
         'accuracy_improvement': accuracy_improvement,
-        'total_tests_count': all_tests.count(),
+        'total_tests_count': len(all_tests),
         'chart_labels': json.dumps(chart_labels),
         'chart_wpm': json.dumps(chart_wpm),
         'chart_accuracy': json.dumps(chart_accuracy),
@@ -169,6 +176,20 @@ def leaderboard(request):
     return render(request, 'leaderboard.html', context)
 
 
+def record_lesson_attempt(user, lesson, result):
+    """Update the user's progress if the result came from a lesson on the map."""
+    if lesson not in LESSON_SLUGS or result.correct_entries < LESSON_MIN_CORRECT_CHARS:
+        return
+
+    progress, _ = LessonProgress.objects.get_or_create(user=user, lesson=lesson)
+    accuracy = Decimal(str(result.accuracy))
+    progress.attempts += 1
+    progress.best_accuracy = max(progress.best_accuracy, accuracy)
+    progress.best_wpm = max(progress.best_wpm, result.wpm)
+    progress.completed = progress.completed or accuracy >= LESSON_PASS_ACCURACY
+    progress.save()
+
+
 @login_required
 @require_http_methods(["POST"])
 def save_result(request):
@@ -240,6 +261,8 @@ def save_result(request):
             score.best_accuracy = Decimal(str(new_accuracy))
         
         score.save()
+
+        record_lesson_attempt(request.user, data.get('lesson'), result)
         
         return JsonResponse({
             'success': True,
@@ -462,7 +485,18 @@ def base(request):
     return render(request, "base2.html")
 
 def typingLession(request):
-    return render(request, 'typingL.html')
+    lesson_progress = {}
+    if request.user.is_authenticated:
+        for progress in LessonProgress.objects.filter(user=request.user):
+            lesson_progress[progress.lesson] = {
+                'best_accuracy': float(progress.best_accuracy),
+                'completed': progress.completed,
+            }
+    return render(request, 'typingL.html', {
+        'lesson_progress': lesson_progress,
+        'lesson_pass_accuracy': LESSON_PASS_ACCURACY,
+        'lesson_min_correct_chars': LESSON_MIN_CORRECT_CHARS,
+    })
 
 
 # ============================================

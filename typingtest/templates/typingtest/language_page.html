@@ -1,0 +1,239 @@
+{% extends "base2.html" %}
+{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ description }}{% endblock %}
+{% block og_title %}{{ page_title }}{% endblock %}
+{% block og_description %}{{ description }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'typingtest/typing.css' %}">{% endblock %}
+
+{% block content %}
+<main class="tt-page" id="ttPage">
+  <h1>{{ h1 }}</h1>
+  <p class="tt-intro">{{ description }} No account needed.</p>
+  {% if not content_reviewed and language.code != 'english' %}<p class="tt-note">The practice text on this page is new and has not yet been reviewed by native speakers. It may contain mistakes.</p>{% endif %}
+
+  <div class="tt-toolbar">
+    <nav class="tt-language" aria-label="Language">
+      <label for="languageSelect">Language</label>
+      <select id="languageSelect" onchange="if (this.value) window.location.href = this.value;">
+        {% for item in languages %}
+          <option value="{{ item.path }}"{% if item == language %} selected{% endif %}>{{ item.name }}</option>
+        {% endfor %}
+      </select>
+    </nav>
+    <div class="tt-stats">
+      <div class="tt-stat"><span id="timerLabel">{% if mode == 'time' %}Time left{% else %}Progress{% endif %}</span><strong id="timerValue">{% if mode == 'time' %}{{ duration_label }}{% else %}0%{% endif %}</strong></div>
+      <div class="tt-stat"><span>WPM (5 units)</span><strong id="liveSpeed">0</strong></div>
+      <div class="tt-stat"><span>Accuracy</span><strong id="liveAccuracy">-</strong></div>
+    </div>
+  </div>
+
+  <nav aria-label="Practice mode">
+    <ul class="tt-links tt-modes">
+      {% for item in modes %}
+        <li><a href="{{ item.path }}"{% if item.current %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+
+  <div class="tt-options" id="testOptions">
+    {% if mode == 'words' %}
+      <fieldset class="tt-choice">
+        <legend>{{ unit_name }}</legend>
+        {% for count in word_counts %}
+          <label><input type="radio" name="wordCount" value="{{ count }}"{% if forloop.counter == 2 %} checked{% endif %}> {{ count }}</label>
+        {% endfor %}
+        <label><input type="radio" name="wordCount" value="custom"> Custom</label>
+        <input type="number" id="customWordCount" min="5" max="500" step="1" aria-label="Custom {{ unit_name|lower }} count" aria-describedby="optionError">
+      </fieldset>
+    {% elif mode == 'paragraph' %}
+      <fieldset class="tt-choice">
+        <legend>Paragraph length</legend>
+        <label><input type="radio" name="paragraphSize" value="1"> Short</label>
+        <label><input type="radio" name="paragraphSize" value="2" checked> Medium</label>
+        <label><input type="radio" name="paragraphSize" value="4"> Long</label>
+      </fieldset>
+    {% elif mode == 'numbers' %}
+      <fieldset class="tt-choice">
+        <legend>Number type</legend>
+        <label><input type="radio" name="numberKind" value="whole" checked> Whole Numbers</label>
+        <label><input type="radio" name="numberKind" value="decimal"> Decimal Numbers</label>
+        <label><input type="radio" name="numberKind" value="mixed"> Mixed Numbers and Symbols</label>
+      </fieldset>
+      {% if language.digits %}
+      <fieldset class="tt-choice">
+        <legend>Digits</legend>
+        <label><input type="radio" name="digitStyle" value="western" checked> Western (0123)</label>
+        <label><input type="radio" name="digitStyle" value="native" lang="{{ language.locale }}"> {{ language.name }} ({{ language.digits|slice:":4" }})</label>
+      </fieldset>
+      {% endif %}
+    {% elif mode == 'custom' %}
+      <div class="tt-custom-source">
+        <label for="customSource">Your practice text</label>
+        <textarea id="customSource" rows="6" dir="auto" lang="{{ language.locale }}" class="tt-script-{{ language.script }}" aria-describedby="customCount optionError"></textarea>
+        <p class="tt-note" id="customCount">0 characters</p>
+        <div class="tt-custom-buttons">
+          <button type="button" class="tt-button tt-secondary" id="pasteText">Paste Text</button>
+          <label class="tt-button tt-secondary" for="uploadText">Upload TXT</label>
+          <input class="visually-hidden" type="file" id="uploadText" accept=".txt,text/plain">
+          <button type="button" class="tt-button tt-secondary" id="clearText">Clear Text</button>
+        </div>
+        <fieldset class="tt-choice">
+          <legend>How to practice</legend>
+          <label><input type="radio" name="customFinish" value="complete" checked> Complete Full Text</label>
+          <label><input type="radio" name="customFinish" value="timed"> Timed Practice</label>
+          <label>Seconds <input type="number" id="customTimedSeconds" min="{{ custom_min }}" max="{{ custom_max }}" value="60" step="1"></label>
+          <label><input type="checkbox" id="customRepeat"> Repeat Text Until Timer Ends</label>
+        </fieldset>
+        <fieldset class="tt-choice">
+          <legend>Text options</legend>
+          <label><input type="checkbox" id="customCaps" checked> Preserve Capitalization</label>
+          <label><input type="checkbox" id="customPunct" checked> Preserve Punctuation</label>
+          <label><input type="checkbox" id="customSpaces" checked> Normalize Extra Spaces</label>
+        </fieldset>
+        <button type="button" class="tt-button" id="startCustom">Start Practice</button>
+        <p class="tt-note">Your text stays in this browser. It is not uploaded or saved, and custom text results never enter public rankings.</p>
+      </div>
+    {% endif %}
+    <p class="tt-error" id="optionError" role="alert"></p>
+  </div>
+
+  <div class="tt-practice tt-script-{{ language.script }}" id="practiceText" dir="{{ practice_direction }}" lang="{{ language.locale }}"></div>
+
+  <label class="visually-hidden" for="typingInput">Type the practice text here</label>
+  <textarea class="tt-input tt-script-{{ language.script }}" id="typingInput" dir="{{ practice_direction }}" lang="{{ language.locale }}"
+            rows="1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+            placeholder="Type here"></textarea>
+
+  <p class="tt-status" id="typingStatus" role="status" aria-live="polite"></p>
+
+  <div class="tt-actions">
+    <button type="button" class="tt-button" id="restartTest">{% if mode == 'custom' %}Restart Practice{% else %}Restart{% endif %}</button>
+    {% if is_main_page %}
+    <form class="tt-custom" id="customDurationForm" novalidate>
+      <label for="customDuration">Custom duration (seconds)</label>
+      <input type="number" id="customDuration" min="{{ custom_min }}" max="{{ custom_max }}" step="1" inputmode="numeric" aria-describedby="customDurationError">
+      <button type="submit" class="tt-button">Set</button>
+    </form>
+    {% endif %}
+  </div>
+  {% if is_main_page %}<p class="tt-error" id="customDurationError" role="alert"></p>{% endif %}
+
+  <details class="tt-settings" id="testSettings">
+    <summary>Settings</summary>
+    <p class="tt-note" id="settingsLocked" hidden>Restart the test to change Difficulty, Content or Behavior.</p>
+    <fieldset class="tt-choice" data-scoring{% if mode != 'time' and mode != 'words' %} hidden{% endif %}>
+      <legend>Difficulty</legend>
+      <label><input type="radio" name="difficulty" value="beginner"> Beginner</label>
+      <label><input type="radio" name="difficulty" value="intermediate"> Intermediate</label>
+      <label><input type="radio" name="difficulty" value="advanced"> Advanced</label>
+    </fieldset>
+    <fieldset class="tt-choice" data-scoring{% if mode != 'time' and mode != 'words' %} hidden{% endif %}>
+      <legend>Content</legend>
+      <label><input type="checkbox" id="optPunctuation"{% if not language.comma and not language.end %} disabled{% endif %}> Punctuation</label>
+      <label><input type="checkbox" id="optNumbers"> Numbers</label>
+      <label><input type="checkbox" id="optCapitalization"{% if not language.cased %} disabled{% endif %}> Capitalization</label>
+    </fieldset>
+    <fieldset class="tt-choice" data-scoring>
+      <legend>Behavior</legend>
+      <label><input type="checkbox" id="optCorrections"> Allow Corrections</label>
+      <label><input type="checkbox" id="optStopOnError"> Stop on Error</label>
+      <label><input type="checkbox" id="optStrict"> Strict Accuracy Mode</label>
+    </fieldset>
+    <fieldset class="tt-choice">
+      <legend>Appearance</legend>
+      <label>Theme
+        <select id="optTheme"><option value="system">System Theme</option><option value="light">Light Theme</option><option value="dark">Dark Theme</option></select>
+      </label>
+      <label>Font Size
+        <select id="optFontSize"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select>
+      </label>
+      <label>Line Spacing
+        <select id="optLineSpacing"><option value="compact">Compact</option><option value="normal">Normal</option><option value="wide">Wide</option></select>
+      </label>
+      <label>Caret Style
+        <select id="optCaret"><option value="box">Box</option><option value="underline">Underline</option><option value="bar">Bar</option></select>
+      </label>
+      <label><input type="checkbox" id="optReducedMotion"> Reduced Motion</label>
+    </fieldset>
+    <p class="tt-note">{% if user.is_authenticated %}Settings are saved to your account.{% else %}Settings are saved in this browser.{% endif %}</p>
+  </details>
+
+  <section class="tt-results" id="typingResults" aria-labelledby="resultsHeading" hidden>
+    <h2 id="resultsHeading">Your Results</h2>
+    <dl>
+      <div><dt>Typing Speed (5-unit WPM)</dt><dd id="resultSpeed"></dd></div>
+      <div><dt>Characters Per Minute</dt><dd id="resultCpm"></dd></div>
+      <div><dt>Accuracy</dt><dd id="resultAccuracy"></dd></div>
+      <div><dt>Elapsed Time</dt><dd id="resultElapsed"></dd></div>
+      <div><dt>Correct Text Units</dt><dd id="resultCorrect"></dd></div>
+      <div><dt>Incorrect Text Units</dt><dd id="resultIncorrect"></dd></div>
+      <div><dt>Corrections</dt><dd id="resultCorrections"></dd></div>
+      <div><dt>Language</dt><dd>{{ language.name }}</dd></div>
+      <div><dt>Mode</dt><dd id="resultMode"></dd></div>
+      <div><dt>Duration</dt><dd id="resultDuration"></dd></div>
+      <div><dt>Difficulty</dt><dd id="resultDifficulty"></dd></div>
+      <div><dt>Personal Best</dt><dd id="resultBest">-</dd></div>
+      <div><dt>Leaderboard Eligibility</dt><dd>Not eligible yet</dd></div>
+    </dl>
+    <div class="tt-custom-buttons">
+      <button type="button" class="tt-button" id="tryAgain">Try Again</button>
+      <button type="button" class="tt-button tt-secondary" id="newText">Practice New Text</button>
+      <a class="tt-button tt-secondary" href="#languageSelect">Change Language</a>
+      <a class="tt-button tt-secondary" href="{% url 'typingtest:progress' %}">View Progress</a>
+      <button type="button" class="tt-button tt-secondary" id="shareResult">Share Result</button>
+    </div>
+    <p class="tt-note" id="resultSaveNote"></p>
+  </section>
+
+  {% if mode == 'time' %}
+  <h2>Choose Your Test Duration</h2>
+  <ul class="tt-links">
+    {% for item in durations %}
+      <li><a href="{{ item.path }}"{% if item.current %} aria-current="page"{% endif %}>{{ item.minutes }} Minute{{ item.minutes|pluralize }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if is_main_page %}
+  <h2>Choose Your Practice Mode</h2>
+  <ul class="tt-links">
+    {% for item in modes %}
+      {% if not item.current %}<li><a href="{{ item.path }}">{{ item.label }}</a></li>{% endif %}
+    {% endfor %}
+  </ul>
+
+  <h2>How to Take the {{ language.name }} Typing Test</h2>
+  <ol>
+    <li>Choose how long you want the test to run.</li>
+    <li>Select your {{ language.name }} keyboard or input method on your device.</li>
+    <li>Start typing the text shown. The timer starts with your first character, not when you click the box.</li>
+    <li>Keep typing until the time runs out, then check your results.</li>
+  </ol>
+
+  <h2>Understanding Your Results</h2>
+  <p>Speed is counted in text units: what a reader sees as one character, including its vowel signs or accent marks. WPM here means correct units per minute divided by five. It is a shared measure and does not count {{ language.name }} words directly, so scores are best compared within the same language. Accuracy is the share of units that were right when you typed them, so a corrected mistake still counts against it.</p>
+
+  <h2>Frequently Asked Questions</h2>
+  <h3>Do I need an account?</h3>
+  <p>No. You can take the test without signing in.</p>
+  <h3>Does the timer stop if I switch tabs?</h3>
+  <p>No. It keeps running, and the time left stays correct when you come back.</p>
+  <h3>Can I paste text into the test?</h3>
+  <p>No. Pasting is turned off so the result reflects your typing. To practice your own text, use Custom Text.</p>
+
+  <h2>Explore Other Languages</h2>
+  <ul class="tt-links">
+    {% for item in other_languages %}
+      <li><a href="{{ item.path }}">{{ item.name }}</a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="tt-intro"><a href="{{ language.path }}">More about the {{ language.name }} typing test</a></p>
+  {% endif %}
+</main>
+
+{{ config|json_script:"typingConfig" }}
+<script src="{% static 'typingtest/engine.js' %}"></script>
+<script src="{% static 'typingtest/app.js' %}"></script>
+{% endblock %}

@@ -301,35 +301,10 @@ class TypingTestResult(models.Model):
         super().save(*args, **kwargs)
     
     def calculate_marks(self):
-        """
-        Calculate marks: 60% WPM + 40% Accuracy
-        
-        WPM Scoring:
-        0-20: 0-20 points
-        20-40: 20-40 points
-        40-60: 40-60 points
-        60-80: 60-80 points
-        80-100: 80-95 points
-        100+: 95-100 points
-        """
-        # Speed Score (out of 100)
-        if self.wpm <= 20:
-            speed_score = (self.wpm / 20) * 20
-        elif self.wpm <= 40:
-            speed_score = 20 + ((self.wpm - 20) / 20) * 20
-        elif self.wpm <= 60:
-            speed_score = 40 + ((self.wpm - 40) / 20) * 20
-        elif self.wpm <= 80:
-            speed_score = 60 + ((self.wpm - 60) / 20) * 20
-        elif self.wpm <= 100:
-            speed_score = 80 + ((self.wpm - 80) / 20) * 15
-        else:
-            speed_score = min(100, 95 + ((self.wpm - 100) / 20) * 5)
-        
-        # Final Marks = 60% Speed + 40% Accuracy
-        final_marks = (speed_score * 0.6) + (float(self.accuracy) * 0.4)
-        
-        return round(final_marks, 2)
+        """Calculate marks: 60% WPM + 40% Accuracy (delegates to the shared formula
+        in typingApp.scoring so this and every game in the `games` app score identically)."""
+        from .scoring import calculate_marks
+        return calculate_marks(self.wpm, self.accuracy)
     
 # models.py - Updated Score Model
 
@@ -418,3 +393,26 @@ class Score(models.Model):
             return 'BRONZE'
         else:
             return 'BEGINNER'
+
+
+class LessonProgress(models.Model):
+    """A user's best result in one lesson on the lesson map"""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='lesson_progress',
+    )
+    lesson = models.CharField(max_length=40)
+    attempts = models.IntegerField(default=0)
+    best_accuracy = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    best_wpm = models.IntegerField(default=0)
+    completed = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'lesson'], name='unique_user_lesson'),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson} - {self.best_accuracy}%"

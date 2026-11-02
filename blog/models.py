@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import resolve
+from django.utils.text import slugify
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -10,6 +12,10 @@ class BlogPost(models.Model):
     
     # Content
     content = models.TextField()
+    featured_image = models.ImageField(upload_to='blog_featured/%Y/%m/%d/', blank=True, null=True)
+    youtube_url = models.URLField(blank=True, null=True, help_text='YouTube video URL e.g. https://youtube.com/watch?v=...')
+    category = models.CharField(max_length=100, blank=True)
+    tags = models.CharField(max_length=500, blank=True, help_text='Comma separated tags')
     meta_description = models.CharField(max_length=320, blank=True)
     
     # SEO Settings
@@ -39,7 +45,22 @@ class BlogPost(models.Model):
         return self.title or 'Untitled Post'
     
     def get_absolute_url(self):
-        return f'/blog/{self.slug}/'
+        return f'/{self.slug}/'
+
+    def build_slug(self, requested=''):
+        """A slug the public /<slug>/ route can serve: URL-safe, unique, and not
+        hidden by another route such as /blogs/. Titles with no Latin letters
+        fall back to 'post'."""
+        base = slugify(requested or self.title)[:190].strip('-') or 'post'
+        slug = base
+        suffix = 2
+        while (
+            BlogPost.objects.filter(slug=slug).exclude(pk=self.pk).exists()
+            or resolve(f'/{slug}/', urlconf='TapTapTyping.urls').url_name != 'blog_detail'
+        ):
+            slug = f'{base}-{suffix}'
+            suffix += 1
+        return slug
 
 
 class BlogPostImage(models.Model):

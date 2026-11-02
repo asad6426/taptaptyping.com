@@ -179,6 +179,24 @@
                 inset 0 0 30px rgba(251, 191, 36, 0.2);
   }
 
+  .lesson-circle.completed {
+    background: rgba(34, 197, 94, 0.25);
+    border-color: #4ade80;
+    box-shadow: 0 0 40px rgba(74, 222, 128, 0.6),
+                inset 0 0 30px rgba(34, 197, 94, 0.2);
+  }
+
+  .progress-note {
+    max-width: 640px;
+    margin: 12px auto 0;
+    font-size: 0.95rem;
+    color: #cbd5e1;
+  }
+
+  .progress-note a {
+    color: #60a5fa;
+  }
+
   .lesson-label {
     font-size: 0.72rem;
     font-weight: 600;
@@ -361,6 +379,10 @@
   <div class="header">
     <h1>Classic Lessons</h1>
     <p>Your step-by-step journey to typing mastery.</p>
+    <p class="progress-note">
+      {% if user.is_authenticated %}Each lesson shows your best accuracy.{% else %}<a href="{% url 'login' %}">Sign in</a> to save your progress.{% endif %}
+      A lesson is completed at {{ lesson_pass_accuracy }}% accuracy with at least {{ lesson_min_correct_chars }} correct characters.
+    </p>
   </div>
 
   <!-- Lesson Path -->
@@ -407,7 +429,7 @@
     
     <!-- Lesson 1: F J -->
     <div class="lesson-node node-fj">
-      <a href="{% url 'FJ' %}" class="lesson-circle-link">
+      <a href="{% url 'FJ' %}" class="lesson-circle-link" data-lesson="FJ">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 1</div>
         <div class="lesson-keys">F J</div>
@@ -420,7 +442,7 @@
 
     <!-- Lesson 2: G H -->
     <div class="lesson-node node-gh">
-      <a href="{% url 'GH' %}" class="lesson-circle-link">
+      <a href="{% url 'GH' %}" class="lesson-circle-link" data-lesson="GH">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 2</div>
         <div class="lesson-keys">G H</div>
@@ -433,7 +455,7 @@
 
     <!-- Lesson 3: D K -->
     <div class="lesson-node node-dk">
-      <a href="{% url 'DK' %}" class="lesson-circle-link">
+      <a href="{% url 'DK' %}" class="lesson-circle-link" data-lesson="DK">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 3</div>
         <div class="lesson-keys">D K</div>
@@ -446,7 +468,7 @@
 
     <!-- Lesson 4: S L -->
     <div class="lesson-node node-sl">
-      <a href="{% url 'SL' %}" class="lesson-circle-link">
+      <a href="{% url 'SL' %}" class="lesson-circle-link" data-lesson="SL">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 4</div>
         <div class="lesson-keys">S L</div>
@@ -459,7 +481,7 @@
 
     <!-- Lesson 5: A ; -->
     <div class="lesson-node node-asemi">
-      <a href="{% url 'A' %}" class="lesson-circle-link">
+      <a href="{% url 'A' %}" class="lesson-circle-link" data-lesson="A">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 5</div>
         <div class="lesson-keys">A ;</div>
@@ -472,7 +494,7 @@
 
     <!-- HOME ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-homerow">
-      <a href="{% url 'homeRowPractice' %}" class="lesson-circle-link">
+      <a href="{% url 'homeRowPractice' %}" class="lesson-circle-link" data-lesson="homeRowPractice">
       <div class="lesson-circle review-circle">
         <div class="lesson-label">Home Row Review</div>
         <div class="lesson-keys" style="font-size: 1.8rem; letter-spacing: 4px;">ASDFGHJKL;</div>
@@ -494,7 +516,7 @@
     
     <!-- Lesson 6: R U -->
     <div class="lesson-node node-ru">
-      <a href="{% url 'RU' %}" class="lesson-circle-link">
+      <a href="{% url 'RU' %}" class="lesson-circle-link" data-lesson="RU">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 6</div>
         <div class="lesson-keys">R U</div>
@@ -507,7 +529,7 @@
 
     <!-- Lesson 7: T Y -->
     <div class="lesson-node node-ty">
-      <a href="{% url 'TY' %}" class="lesson-circle-link">
+      <a href="{% url 'TY' %}" class="lesson-circle-link" data-lesson="TY">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 7</div>
         <div class="lesson-keys">T Y</div>
@@ -520,7 +542,7 @@
 
     <!-- Lesson 8: E I -->
     <div class="lesson-node node-ei">
-      <a href="{% url 'EI' %}" class="lesson-circle-link">
+      <a href="{% url 'EI' %}" class="lesson-circle-link" data-lesson="EI">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 8</div>
         <div class="lesson-keys">E I</div>
@@ -533,7 +555,7 @@
 
     <!-- Lesson 9: W O -->
     <div class="lesson-node node-wo">
-      <a href="{% url 'WO' %}" class="lesson-circle-link">
+      <a href="{% url 'WO' %}" class="lesson-circle-link" data-lesson="WO">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 9</div>
         <div class="lesson-keys">W O</div>
@@ -546,7 +568,7 @@
 
     <!-- Lesson 10: Q P -->
     <div class="lesson-node node-qp">
-      <a href="{% url 'QP' %}" class="lesson-circle-link">
+      <a href="{% url 'QP' %}" class="lesson-circle-link" data-lesson="QP">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 10</div>
         <div class="lesson-keys">Q P</div>
@@ -559,7 +581,7 @@
 
     <!-- TOP ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-toprow">
-      <a href="{% url 'topRowPractice' %}" class="lesson-circle-link">
+      <a href="{% url 'topRowPractice' %}" class="lesson-circle-link" data-lesson="topRowPractice">
       <div class="lesson-circle review-circle">
         <div class="lesson-label">Top Row Review</div>
         <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px;">QWERTYUIOP</div>
@@ -581,7 +603,7 @@
     
     <!-- Lesson 11: V N -->
     <div class="lesson-node node-zx">
-      <a href="{% url 'VN' %}" class="lesson-circle-link">
+      <a href="{% url 'VN' %}" class="lesson-circle-link" data-lesson="VN">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 11</div>
         <div class="lesson-keys">V N</div>
@@ -594,7 +616,7 @@
 
     <!-- Lesson 12: B / -->
     <div class="lesson-node node-cv">
-      <a href="{% url 'BB' %}" class="lesson-circle-link">
+      <a href="{% url 'BB' %}" class="lesson-circle-link" data-lesson="BB">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 12</div>
         <div class="lesson-keys">B /</div>
@@ -607,7 +629,7 @@
 
     <!-- Lesson 13: C M -->
     <div class="lesson-node node-bn">
-      <a href="{% url 'CM' %}" class="lesson-circle-link">
+      <a href="{% url 'CM' %}" class="lesson-circle-link" data-lesson="CM">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 13</div>
         <div class="lesson-keys">C M</div>
@@ -620,7 +642,7 @@
 
     <!-- Lesson 14: X , -->
     <div class="lesson-node node-m">
-      <a href="{% url 'X' %}" class="lesson-circle-link">
+      <a href="{% url 'X' %}" class="lesson-circle-link" data-lesson="X">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 14</div>
         <div class="lesson-keys">X ,</div>
@@ -633,7 +655,7 @@
 
     <!-- Lesson 15: Z . -->
     <div class="lesson-node node-comma">
-      <a href="{% url 'Z' %}" class="lesson-circle-link">
+      <a href="{% url 'Z' %}" class="lesson-circle-link" data-lesson="Z">
       <div class="lesson-circle available">
         <div class="lesson-label">Lesson 15</div>
         <div class="lesson-keys"> Z . </div>
@@ -646,7 +668,7 @@
 
     <!-- BOTTOM ROW REVIEW - Connected to lessons above -->
     <div class="lesson-node node-review-bottomrow">
-      <a href="{% url 'BottomRowPractce' %}" class="lesson-circle-link">
+      <a href="{% url 'BottomRowPractce' %}" class="lesson-circle-link" data-lesson="BottomRowPractce">
       <div class="lesson-circle review-circle">
         <div class="lesson-label">Bottom Row Review</div>
         <div class="lesson-keys" style="font-size: 1.7rem; letter-spacing: 3px; margin-top: 0.5rem;">ZXCVBNM,./</div>
@@ -1309,4 +1331,25 @@ function advUpdateStats(){
 function resetAdvTest(){ if(advText) loadAdvTest(advText); }
 </script>
 
+{{ lesson_progress|json_script:"lessonProgress" }}
+<script>
+  (function () {
+    const progress = JSON.parse(document.getElementById('lessonProgress').textContent);
+
+    document.querySelectorAll('.lesson-circle-link[data-lesson]').forEach(function (link) {
+      const lesson = progress[link.dataset.lesson];
+      if (!lesson) return;
+
+      const circle = link.querySelector('.lesson-circle');
+      let status = circle.querySelector('.lesson-progress');
+      if (!status) {
+        status = document.createElement('div');
+        status.className = 'lesson-progress';
+        circle.appendChild(status);
+      }
+      status.textContent = lesson.completed ? '✓ Completed' : 'Best ' + Math.round(lesson.best_accuracy) + '%';
+      circle.classList.toggle('completed', lesson.completed);
+    });
+  })();
+</script>
 {% endblock content %}

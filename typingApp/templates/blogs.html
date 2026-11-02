@@ -1,131 +1,364 @@
 {% extends "base2.html" %}
-{% block title %}job_details Posts{% endblock %}
+{% block title %}Blog — TapTapTyping{% endblock %}
 
+{% block extra_head %}
+<meta name="description" content="Read the latest articles, tips, and tutorials from TapTapTyping Blog.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ─── Reset & Base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .blog-page { font-family: 'Inter', sans-serif; background: #f8fafd; min-height: 100vh; padding-bottom: 80px; }
+
+  /* ─── Hero Banner ─── */
+  .blog-hero {
+    background: linear-gradient(135deg, #0d6073 0%, #1a9bb5 50%, #0d6073 100%);
+    padding: 70px 20px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .blog-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .blog-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .blog-hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.1rem;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* ─── Container ─── */
+  .blog-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+  /* ─── Category Filter Bar ─── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 30px 0 20px;
+    border-bottom: 2px solid #e8edf2;
+    margin-bottom: 36px;
+  }
+  .filter-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    color: #4a5568;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: #0d6073;
+    border-color: #0d6073;
+    color: #fff;
+  }
+  .post-count-badge {
+    margin-left: auto;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* ─── Grid ─── */
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 28px;
+  }
+
+  /* ─── Card ─── */
+  .blog-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f0f4f8;
+  }
+  .blog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(13,96,115,0.15);
+  }
+  .card-image-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0d6073, #1a9bb5);
+  }
+  .card-image-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .blog-card:hover .card-image-wrap img { transform: scale(1.05); }
+  .card-no-img {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+  }
+  .card-category-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: #0d6073;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .card-body {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-bottom: 12px;
+  }
+  .card-meta svg { width: 14px; height: 14px; }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-excerpt {
+    font-size: 0.88rem;
+    color: #64748b;
+    line-height: 1.6;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .card-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag-chip {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .read-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0d6073;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+  .read-more-btn:hover { gap: 10px; color: #0a4e5e; }
+  .read-more-btn svg { width: 16px; height: 16px; }
+
+  /* ─── Featured (first post large) ─── */
+  .blog-grid .blog-card:first-child {
+    grid-column: 1 / -1;
+    flex-direction: row;
+  }
+  .blog-grid .blog-card:first-child .card-image-wrap {
+    width: 420px;
+    flex-shrink: 0;
+    height: auto;
+    min-height: 300px;
+  }
+  .blog-grid .blog-card:first-child .card-title { font-size: 1.5rem; }
+  .blog-grid .blog-card:first-child .card-excerpt { -webkit-line-clamp: 5; }
+
+  /* ─── Empty State ─── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #94a3b8;
+  }
+  .empty-state .empty-icon { font-size: 5rem; margin-bottom: 20px; }
+  .empty-state h2 { font-size: 1.5rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .blog-grid .blog-card:first-child {
+      flex-direction: column;
+      grid-column: auto;
+    }
+    .blog-grid .blog-card:first-child .card-image-wrap {
+      width: 100%;
+      height: 220px;
+    }
+    .blog-grid { grid-template-columns: 1fr; }
+    .filter-bar { gap: 8px; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
- <style>
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-      
-        .job_details-posts {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .job_details-post {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-        .job_details-post:hover {
-            transform: scale(1.02);
-        }
-        .job_details-post img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-        .job_details-post h2 {
-            font-size: 1.5em;
-            margin: 0 0 10px;
-        }
-        .job_details-post p {
-            margin: 5px 0;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin: 20px 0;
-            text-decoration: none;
-            color: #007BFF;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    
-    .post-card {
-        background-color: #ffffff;
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        padding: 20px;
-        transition: box-shadow 0.3s ease-in-out;
-    }
+<div class="blog-page">
+  <!-- Hero -->
+  <div class="blog-hero">
+    <p class="hero-badge">✍️ TapTapTyping Blog</p>
+    <h1>Articles & Tutorials</h1>
+    <p>Tips, guides, and insights to improve your typing and productivity.</p>
+  </div>
 
-    .post-card:hover {
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
+  <div class="blog-container">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterPosts('all', this)">All Posts</button>
+      <span class="post-count-badge">{{ blogposts.count }} post{{ blogposts.count|pluralize }}</span>
+    </div>
 
-    .post-image {
-        width: 100%;
-        height: auto;
-        border-radius: 5px;
-        margin-bottom: 15px;
-    }
+    <!-- Grid -->
+    {% if blogposts %}
+      <div class="blog-grid" id="blogGrid">
+        {% for post in blogposts %}
+        <article class="blog-card" data-category="{{ post.category|lower|slugify }}">
+          <!-- Image -->
+          <div class="card-image-wrap">
+            {% if post.featured_image %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">
+            {% elif post.images.first %}
+              <img src="{{ post.images.first.image.url }}" alt="{{ post.title }}" loading="lazy">
+            {% else %}
+              <div class="card-no-img">📝</div>
+            {% endif %}
+            {% if post.category %}
+              <span class="card-category-badge">{{ post.category }}</span>
+            {% endif %}
+          </div>
 
-    .post-title {
-        font-size: 1.5em;
-        color: #333;
-        margin-bottom: 10px;
-    }
-
-    .post-snippet {
-        font-size: 1em;
-        color: #666;
-        margin-bottom: 15px;
-    }
-
-    .post-actions {
-        font-size: 0.9em;
-        color: #333;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .post-actions i {
-        margin-right: 5px;
-    }
-
-    .btn-link {
-        color: #4a69bd;
-        text-decoration: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-    }
-
-    .btn-link:hover {
-        text-decoration: underline;
-    }
-   
-</style>
-
-<div class="container my-4">
-    <h1 class="text-center mb-4">Latest Blog Details</h1>
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-lg border-0">
-                {% if blog_details.image %}
-                <a href="{{ blog_details.image.url }}"><img src="{{ blog_details.image.url }}" class="card-img-top" alt="{{ job_details.title }}" height="300", width="300"> </a>                {% else %}
-                <img src="https://via.placeholder.com/400x250?text=No+Image" class="card-img-top" alt="No Image">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title text-primary">{{ blog_details.title }}</h5>                    
-                    <p class="card-text text-muted small">{{ blog_details.posted_date|date:"M d, Y" }}</p>
-                    <p class="card-text">{{ blog_details.description|safe }}</p>
-                    
-                </div>
+          <!-- Body -->
+          <div class="card-body">
+            <div class="card-meta">
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {{ post.created_at|date:"M j, Y" }}
+              </span>
+              {% if post.seo_title %}
+                <span>· SEO Optimized</span>
+              {% endif %}
             </div>
 
-    </div>
+            <h2 class="card-title">{{ post.title }}</h2>
+
+            <p class="card-excerpt">
+              {% if post.meta_description %}
+                {{ post.meta_description }}
+              {% else %}
+                {{ post.content|striptags|truncatewords:30 }}
+              {% endif %}
+            </p>
+
+            <div class="card-footer-row">
+              <div class="card-tags">
+                {% if post.tags %}
+                  {% for tag in post.tags.split %}
+                    <span class="tag-chip">{{ tag|cut:"," }}</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <a href="https://taptaptyping.com/{{ post.slug }}/" class="read-more-btn">
+                Read More
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h2>No Posts Yet</h2>
+        <p>Check back soon for the latest articles and tutorials!</p>
+      </div>
+    {% endif %}
+  </div>
 </div>
-    
 
+<script>
+  function filterPosts(category, btn) {
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-{% endblock content %}
+    // Filter cards
+    document.querySelectorAll('.blog-card').forEach(card => {
+      if (category === 'all' || card.dataset.category === category) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Reapply "featured" styling to first visible card
+    const visible = [...document.querySelectorAll('.blog-card')].filter(c => c.style.display !== 'none');
+    document.querySelectorAll('.blog-card').forEach(c => {
+      c.style.flex = '';
+      c.style.gridColumn = '';
+    });
+  }
+</script>
+{% endblock %}

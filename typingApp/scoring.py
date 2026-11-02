@@ -5,6 +5,15 @@ RANKING_MIN_SECONDS = 15
 RANKING_MIN_TESTS = 5
 RANKING_RECENT_TESTS = 10
 
+# url names of the lessons on the lesson map
+LESSON_SLUGS = frozenset({
+    'FJ', 'GH', 'DK', 'SL', 'A', 'homeRowPractice',
+    'RU', 'TY', 'EI', 'WO', 'QP', 'topRowPractice',
+    'VN', 'BB', 'CM', 'X', 'Z', 'BottomRowPractce',
+})
+LESSON_PASS_ACCURACY = 90
+LESSON_MIN_CORRECT_CHARS = 20
+
 
 def is_plausible_result(wpm, correct_entries, time_taken):
     """False if the submitted speed, or the speed implied by its characters and
