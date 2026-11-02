@@ -35,10 +35,19 @@
     const optionError = $('optionError');
 
     let prefs = loadPrefs();
+    const pageQuery = new URLSearchParams(window.location.search);
+    if (['beginner', 'intermediate', 'advanced'].includes(pageQuery.get('difficulty'))) {
+        prefs.difficulty = pageQuery.get('difficulty');
+    }
     let session = null;
     let composing = false;
     let tick = null;
     let durationSec = config.mode === 'time' ? config.durationSec : null;
+    const requestedDuration = Number(pageQuery.get('duration'));
+    if (config.mode === 'time' && Number.isInteger(requestedDuration)
+        && requestedDuration >= config.customMin && requestedDuration <= config.customMax) {
+        durationSec = requestedDuration;
+    }
     let seed = 0;
     let lastResult = null;
     let customBase = '';

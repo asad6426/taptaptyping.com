@@ -5,6 +5,7 @@
 {% block og_description %}Measure your typing speed in WPM, practice with lessons, and improve accuracy. 100% free.{% endblock %}
 
 {% block content %}
+{% load typing_languages %}{% typing_languages as test_languages %}
 <style>
     body {
         background: #d9eef3;
@@ -286,6 +287,15 @@
                     <p class="test-label">Customize your test</p>
 
                     <label class="pill-select">
+                        <span class="visually-hidden">Language</span>
+                        <select id="test-language">
+                            {% for language in test_languages %}
+                                <option value="{{ language.path }}"{% if language.code == 'english' %} selected{% endif %}>{{ language.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <label class="pill-select">
                         <span class="visually-hidden">Test length</span>
                         <select id="test-duration" name="test_duration">
                             <option value="30">30 Second Test</option>
@@ -361,6 +371,10 @@
         const page = document.getElementById('homePage');
         const toggle = document.getElementById('themeToggle');
         const duration = document.getElementById('test-duration');
+        const language = document.getElementById('test-language');
+        const textType = document.getElementById('text-type');
+        const durationRoutes = { 60: '1-minute', 120: '2-minutes', 300: '5-minutes', 600: '10-minutes' };
+        const difficulties = { Easy: 'beginner', Medium: 'intermediate', Hard: 'advanced' };
         const heading = document.getElementById('durationHeading');
         const headings = { 30: '30 Seconds', 60: '60 Seconds', 120: '2 Minutes', 300: '5 Minutes', 600: '10 Minutes' };
 
@@ -382,6 +396,16 @@
             } catch (error) {
                 // The choice just won't be remembered
             }
+        });
+
+        // English keeps the classic test. Other languages open their own page.
+        document.getElementById('testForm').addEventListener('submit', function (event) {
+            if (language.value === '/english-typing-test') return;
+            event.preventDefault();
+            const route = durationRoutes[duration.value];
+            const query = new URLSearchParams({ difficulty: difficulties[textType.value] });
+            if (!route) query.set('duration', duration.value);
+            window.location.href = language.value + (route ? '/' + route : '') + '?' + query;
         });
 
         duration.addEventListener('change', function () {

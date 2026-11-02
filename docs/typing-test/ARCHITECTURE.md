@@ -8,7 +8,7 @@
 | Database | Keep SQLite for now | It is what production runs. Its write limits should be reviewed before public leaderboards launch. |
 | Accounts | Reuse `accounts` and allauth | Sign-in already works. |
 | Code location | New `typingtest` app | The existing `/taptap/`, lessons and ranking stay untouched. |
-| Language list | `typingtest/languages.py` | Routes, selector, metadata and links are generated from it. |
+| Language list | `typingtest/languages.py` | Routes, selectors, the site menu, the homepage form, metadata and links are generated from it. |
 | Routes | No trailing slash, as in the brief | `/x/` would hit the blog's `/<slug>/` route, so each page also has a 301 from the slash form. Blog slugs cannot take these routes. |
 | Game subdomain | Not mounted there | These are main-site pages. |
 | Sitemap | Left out for now | Starter content is unreviewed. Add the pages in Stage 7, after review. |

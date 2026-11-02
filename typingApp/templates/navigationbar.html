@@ -1,4 +1,4 @@
-<style>
+{% load typing_languages %}{% typing_languages as menu_languages %}<style>
   .navbar-custom {
     background-color: #0d6073 !important;
   }
@@ -19,6 +19,16 @@
     background-color: #0d6073 !important;
     border: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .navbar-custom .language-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .navbar-custom .dropdown-header {
+    margin: 0;
+    color: #d7eef3;
+    font-size: 0.8rem;
+    font-weight: 600;
   }
   .navbar-custom .dropdown-item {
     color: white !important;
@@ -53,7 +63,18 @@
       <ul class="navbar-nav ms-auto align-items-lg-center">
         <li class="nav-item"><a class="nav-link" href="https://taptaptyping.com/">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'typingLession' %}">Lessons</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'taptap' %}">Typing Test</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button"
+             data-bs-toggle="dropdown" aria-expanded="false">Typing Test</a>
+          <ul class="dropdown-menu language-menu">
+            <li><a class="dropdown-item" href="{% url 'taptap' %}">Typing Speed Test</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h2 class="dropdown-header">Choose a language</h2></li>
+            {% for language in menu_languages %}
+              <li><a class="dropdown-item" href="https://taptaptyping.com{{ language.path }}">{{ language.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
         <li class="nav-item"><a class="nav-link" href="{% url 'leaderboard' %}">Leaderboard</a></li>
         <li class="nav-item"><a class="nav-link" href="https://game.taptaptyping.com/">Games</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'blogs' %}">Blog</a></li>

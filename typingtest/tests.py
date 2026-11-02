@@ -142,6 +142,25 @@ class LanguagePageTests(TestCase):
         for slug in ('paragraph', 'numbers', 'custom-text'):
             self.assertContains(self.client.get(f'/english-typing-test/{slug}'), hidden, count=2)
 
+    def test_every_language_can_be_chosen_from_the_homepage_and_menu(self):
+        home = self.client.get('/').content.decode()
+        options = re.findall(r'<option value="(/[a-z]+-typing-test)"', home)
+        self.assertEqual(options, [language.path for language in LANGUAGES])
+        for language in LANGUAGES:
+            self.assertIn(f'<a class="dropdown-item" href="https://taptaptyping.com{language.path}">{language.name}</a>', home)
+
+    def test_classic_test_page_has_a_language_choice(self):
+        page = self.client.get('/taptap/').content.decode()
+        options = re.findall(r'<option value="(/[a-z]+-typing-test)"', page)
+        self.assertEqual(options, [language.path for language in LANGUAGES])
+        self.assertLess(page.index('id="testLanguage"'), page.index('id="text-display"'))
+
+    def test_menu_works_on_other_pages_and_the_game_site(self):
+        for path, host in (('/blogs/', 'testserver'), ('/typing-lessons/', 'testserver'), ('/', 'game.taptaptyping.com')):
+            response = self.client.get(path, HTTP_HOST=host)
+            self.assertContains(response, 'https://taptaptyping.com/urdu-typing-test')
+            self.assertContains(response, "Typing Speed Test")
+
     def test_a_blog_post_cannot_take_a_language_route(self):
         post = BlogPost(title='English Typing Test')
         self.assertEqual(post.build_slug(), 'english-typing-test-2')
