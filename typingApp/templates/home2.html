@@ -57,10 +57,37 @@
     .btn-custom:hover {
         background-color: #1f8ea6;
     }
+    .home-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+    .home-link {
+        display: block;
+        padding: 1.25rem;
+        border: 1px solid #d7e8ec;
+        border-radius: 0.75rem;
+        color: #0D6073;
+        text-decoration: none;
+    }
+    .home-link:hover {
+        border-color: #1f8ea6;
+    }
+    .home-link h2 {
+        font-size: 1.15rem;
+        font-weight: bold;
+        margin-bottom: 0.35rem;
+    }
+    .home-link p {
+        color: #4b5563;
+        margin: 0;
+    }
 </style>
 
 <main class="main-content">
-    <h2 class="header-title">Check your typing skills in a minute</h2>
+    <h1 class="header-title">Free Typing Speed Test</h1>
     <p class="header-subtitle">{% if public_user_count %}Type away to join {{ public_user_count }} registered users!{% else %}Take a free typing test and see your speed and accuracy.{% endif %}</p>
 
     <form id="testForm" action="{% url 'taptap' %}" method="GET">
@@ -71,21 +98,10 @@
             <label for="test-duration" class="testTimeTitle">Select Your Test</label>
             <select id="test-duration" name="test_duration" class="test-select">
                 <option value="30">30 second Test</option>
-                <option value="60">1 Minute Test</option>
+                <option value="60" selected>1 Minute Test</option>
                 <option value="120">2 Minute Test</option>
-                <option value="180">3 Minute Test</option>
                 <option value="300">5 Minute Test</option>
                 <option value="600">10 Minute Test</option>
-            </select>
-        </div>
-
-        <!-- Select Text Type -->
-        <div class="center-wrapper">
-            <label for="text-type" class="testTimeTitle">Select Text Type</label>
-            <select id="text-type" name="text_type" class="test-select">
-                <option value="Easy">Easy Text</option>
-                <option value="Medium">Medium Text</option>
-                <option value="Hard">Hard Text</option>
             </select>
         </div>
 
@@ -93,5 +109,20 @@
         <button type="submit" id="startTest" class="btn btn-custom shadow">Start Test</button>
 
     </form>
+
+    <section class="home-links">
+        <a class="home-link" href="{% url 'typingLession' %}">
+            <h2>Typing Lessons</h2>
+            <p>Learn touch typing one key group at a time, starting with the home row.</p>
+        </a>
+        <a class="home-link" href="{% url 'leaderboard' %}">
+            <h2>Leaderboard</h2>
+            <p>Sign in, save your test results and see how you rank.</p>
+        </a>
+        <a class="home-link" href="{% url 'blogs' %}">
+            <h2>Typing Blog</h2>
+            <p>Read tips and guides for improving your speed and accuracy.</p>
+        </a>
+    </section>
 </main>
 {% endblock %}

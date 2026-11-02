@@ -710,8 +710,9 @@
     </style>
     <div class="container">
 
+
         <!-- Time Selection -->
-        <div class="time-selection">
+        <div class="time-selection" id="timeSelectionRow">
             <button class="time-btn" data-time="30">30 Seconds</button>
             <button class="time-btn active" data-time="60">1 Minute</button>
             <button class="time-btn" data-time="120">2 Minutes</button>
@@ -745,6 +746,38 @@
             <div class="controls">
                 <button id="reset-btn" class="btn">🔄 Reset Test</button>
             </div>
+
+            <!-- ✏️ Custom Text Card -->
+            <div style="margin-top:28px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:16px;padding:24px;border:2px solid #e2e8f0;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <span style="font-size:1.6rem;">✏️</span>
+                <div>
+                  <div style="font-weight:700;font-size:1.1rem;color:#1e3c72;">Custom Text Mode</div>
+                  <div style="font-size:0.82rem;color:#6c757d;">Paste your own text and practice typing it</div>
+                </div>
+              </div>
+              <textarea id="customTextarea"
+                placeholder="Type or paste your own text here... (minimum 20 characters, max 1000)"
+                maxlength="1000"
+                oninput="updateCustomCount()"
+                style="width:100%;min-height:110px;padding:14px;border:2px solid #dee2e6;border-radius:10px;font-size:1rem;font-family:'Poppins',sans-serif;resize:vertical;outline:none;transition:border-color 0.2s;background:#fff;color:#1e3c72;"
+              ></textarea>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:10px;">
+                <span id="customCharCount" style="font-size:0.82rem;color:#6c757d;">0 / 1000 characters</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <select id="customDurSelect" style="padding:8px 14px;border:2px solid #dc2626;border-radius:8px;font-size:0.9rem;font-family:'Poppins',sans-serif;color:#1e3c72;background:#fff;cursor:pointer;">
+                    <option value="30">30 sec</option>
+                    <option value="60" selected>1 min</option>
+                    <option value="120">2 min</option>
+                    <option value="180">3 min</option>
+                    <option value="300">5 min</option>
+                  </select>
+                  <button onclick="startCustomTest()" style="padding:10px 22px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'Poppins',sans-serif;box-shadow:0 4px 12px rgba(239,68,68,0.4);transition:all 0.2s;">▶ Start Custom Test</button>
+                </div>
+              </div>
+              <div style="height:5px;background:#dee2e6;border-radius:3px;margin-top:10px;overflow:hidden;"><div id="customFill" style="height:100%;width:0%;background:#10b981;border-radius:3px;transition:width 0.3s;"></div></div>
+              <p id="customError" style="color:#ef4444;font-size:0.82rem;margin-top:6px;display:none;font-weight:600;">⚠️ Please enter at least 20 characters!</p>
+            </div>
         </div>
     </div>
 
@@ -753,7 +786,7 @@
         <div class="results-modal">
             <button class="close-btn" id="close-btn">×</button>
             
-            <img src="/static/taptaptyping logo.jpg" alt="Logo" class="modal-logo">
+            <img src="/static/taptaptyping-logo.jpg" alt="Logo" class="modal-logo">
             <h2>🎉 Test Results 🎉</h2>
 
             <div class="main-results">
@@ -946,6 +979,12 @@
                 });
             });
             
+            // Apply the duration chosen on the homepage form
+            const requestedDuration = new URLSearchParams(window.location.search).get('test_duration');
+            timeButtons.forEach(btn => {
+                if (btn.dataset.time === requestedDuration) btn.click();
+            });
+
             textDisplay.addEventListener('click', focusTextDisplay);
             textDisplay.addEventListener('keydown', handleKeyDown);
             textDisplay.addEventListener('keypress', handleKeyPress);
@@ -1633,6 +1672,96 @@ function showToast(message) {
             document.body.removeChild(toast);
         }, 300);
     }, 3000);
+}
+
+// ── Custom Text Mode ──
+var currentMode = 'standard';
+var customTextLoaded = '';
+
+function switchMode(mode) {
+    currentMode = mode;
+    var isCustom = mode === 'custom';
+
+    // Toggle tab styles
+    document.getElementById('tabStd').style.background = isCustom ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.95)';
+    document.getElementById('tabStd').style.color = isCustom ? '#1e3c72' : '#dc2626';
+    document.getElementById('tabStd').style.borderColor = isCustom ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.8)';
+    document.getElementById('tabCust').style.background = isCustom ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.22)';
+    document.getElementById('tabCust').style.color = isCustom ? '#dc2626' : '#1e3c72';
+    document.getElementById('tabCust').style.borderColor = isCustom ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.8)';
+
+    // Show/hide panels
+    document.getElementById('timeSelectionRow').style.display = isCustom ? 'none' : 'flex';
+    document.getElementById('customPanel').style.display = isCustom ? 'block' : 'none';
+
+    if (!isCustom) {
+        // Reset to standard mode
+        resetTest();
+    } else {
+        // Show placeholder message
+        document.getElementById('text-display').innerHTML = '<span style="color:#adb5bd;font-size:1.1rem;">👆 Enter your text above and click ▶ Start Test</span>';
+    }
+}
+
+function updateCustomCount() {
+    var val = document.getElementById('customTextarea').value;
+    var len = val.length;
+    document.getElementById('customCharCount').textContent = len + ' / 1000';
+    var pct = Math.min((len / 1000) * 100, 100);
+    var fill = document.getElementById('customFill');
+    fill.style.width = pct + '%';
+    fill.style.background = len < 20 ? '#ef4444' : len > 900 ? '#f59e0b' : '#10b981';
+    document.getElementById('customError').style.display = 'none';
+    document.getElementById('customTextarea').style.borderColor = '';
+}
+
+function startCustomTest() {
+    var raw = document.getElementById('customTextarea').value.trim();
+    if (raw.length < 20) {
+        document.getElementById('customError').style.display = 'block';
+        document.getElementById('customTextarea').style.borderColor = '#ef4444';
+        return;
+    }
+    document.getElementById('customError').style.display = 'none';
+    customTextLoaded = raw;
+
+    // Override test duration
+    var dur = parseInt(document.getElementById('customDurSelect').value);
+    testDuration = dur;
+    timeLeft = dur;
+
+    // Load text into display
+    loadCustomText(raw);
+}
+
+function loadCustomText(text) {
+    // ── CRITICAL: set currentText so the engine compares against custom text
+    currentText = text;
+    typedText = '';
+
+    // Reset all state
+    isTestRunning = false;
+    correctChars = 0;
+    incorrectChars = 0;
+    fixedMistakes = 0;
+    totalKeystrokes = 0;
+    charStats = {};
+    previousTypedLength = 0;
+    startTime = null;
+    clearInterval(timerInterval);
+
+    // Update timer display
+    timeRemaining = selectedDuration;
+    updateTimerDisplay();
+    liveWpmElement.textContent = '0';
+    liveAccuracyElement.textContent = '100%';
+
+    // Render custom text into the display using the same displayText() method
+    displayText();
+
+    instructionElement.textContent = '👆 Click on the text below and start typing to begin!';
+    instructionElement.classList.remove('started');
+    textDisplay.focus();
 }
     </script>
     

@@ -6,7 +6,7 @@ urlpatterns = [
     # ==========================================
     # TYPING TEST & LESSONS
     # ==========================================
-    path('s/', start_test, name='start_test'),
+    path('s/', RedirectView.as_view(url='/', permanent=True, query_string=True)),
     path('taptap/', taptap, name='taptap'),
     path('lession_SL/', SL, name='SL'),
     path('lession_S/', S, name='S'),
@@ -91,9 +91,9 @@ urlpatterns = [
     path('category/<slug:slug>/', category_posts, name='category_posts'),
     
     # ==========================================
-    # HOME (leaderboard)
+    # HOME (typing test start page)
     # ==========================================
-    path('', leaderboard, name='leaderboard'),
+    path('', start_test, name='start_test'),
     
     # ==========================================
     # CATCH-ALL - MUST BE LAST!

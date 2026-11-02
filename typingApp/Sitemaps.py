@@ -28,6 +28,7 @@ class StaticViewSitemap(Sitemap):
             ('/', 1.0),
             ('/taptap/', 0.9),
             ('/typing-lessons/', 0.9),
+            ('/leaderboard/', 0.7),
             ('/typingGames/', 0.8),
             ('/blogs/', 0.8),
             ('/jobs/', 0.7),
